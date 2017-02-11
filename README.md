@@ -7,7 +7,7 @@ NetStandard 1.1 (.NET Framework 4.5 for unit tests only)
 * Immutable Collections
 * Reactive Extensions
 ### Integration
-* Autofac ()
+* Autofac
 ### Unit testing
 * xUnit
 * Fluent Assertions

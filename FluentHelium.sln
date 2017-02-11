@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{FAA1C83F-D955-490B-A1B5-EDDF10392866}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentHelium.Module", "FluentHelium.Module\FluentHelium.Module.csproj", "{B5203899-143B-4D8F-A5BE-39091852CAB2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentHelium.Module.Tests", "FluentHelium.Module.Tests\FluentHelium.Module.Tests.csproj", "{32BF0FD5-0310-4917-A205-CB48CF97B333}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentHelium.Autofac", "FluentHelium.Autofac\FluentHelium.Autofac.csproj", "{16B245E2-975C-4A57-8E52-84CB8298FAA2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B5203899-143B-4D8F-A5BE-39091852CAB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5203899-143B-4D8F-A5BE-39091852CAB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5203899-143B-4D8F-A5BE-39091852CAB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5203899-143B-4D8F-A5BE-39091852CAB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32BF0FD5-0310-4917-A205-CB48CF97B333}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32BF0FD5-0310-4917-A205-CB48CF97B333}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32BF0FD5-0310-4917-A205-CB48CF97B333}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32BF0FD5-0310-4917-A205-CB48CF97B333}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16B245E2-975C-4A57-8E52-84CB8298FAA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16B245E2-975C-4A57-8E52-84CB8298FAA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16B245E2-975C-4A57-8E52-84CB8298FAA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16B245E2-975C-4A57-8E52-84CB8298FAA2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{32BF0FD5-0310-4917-A205-CB48CF97B333} = {FAA1C83F-D955-490B-A1B5-EDDF10392866}
+	EndGlobalSection
+	GlobalSection(MercurialSourceControlSolutionProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
+EndGlobal
