@@ -7,6 +7,9 @@ namespace FluentHelium.Module
 {
     public static class DependencyProviderExtensions
     {
+        public static Usable<T> Resolve<T>(this IDependencyProvider provider) where T: class =>
+            provider.Resolve(typeof (T)).Select(o => (T)o);
+
         public static IDependencyProvider Empty =
             new DependencyProvider(t => { throw new NotImplementedException(t.Name); }, ImmutableHashSet<Type>.Empty);
 

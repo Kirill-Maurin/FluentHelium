@@ -7,7 +7,7 @@ using static FluentHelium.Bdd.GivenWhenThenExtensions;
 
 namespace FluentHelium.Module.Tests
 {
-    public class ModuleGraphTests
+    public sealed class ModuleGraphTests
     {
         [Fact]
         public void SingleModuleGraphTest()

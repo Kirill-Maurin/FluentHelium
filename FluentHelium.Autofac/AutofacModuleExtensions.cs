@@ -19,7 +19,7 @@ namespace FluentHelium.Autofac
         public static void RegisterFluentHeliumModule(this ContainerBuilder builder, IModule module, IEnumerable<Type> types)
         {
             var dependencies = types.ToArray();
-            if (module.Descriptor.Output.IsSupersetOf(dependencies))
+            if (!module.Descriptor.Output.IsSupersetOf(dependencies))
                 throw new ArgumentException($"Module {module.Descriptor.Name} doesn't implement at least one of target types", nameof(types));
 
             builder.Register(c => 

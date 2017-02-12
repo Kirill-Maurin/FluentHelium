@@ -7,7 +7,7 @@ using static NSubstitute.Substitute;
 
 namespace FluentHelium.Module.Tests
 {
-    public class UsableTests
+    public sealed class UsableTests
     {
         [Fact]
         public void GivenDisposable_WhenDisposeThenusage_TimeShouldBeDisposed()

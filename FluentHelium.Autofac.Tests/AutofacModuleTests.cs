@@ -1,6 +1,5 @@
 ﻿using System;
 using Autofac;
-using Autofac.Core;
 using FluentAssertions;
 using FluentHelium.Bdd;
 using FluentHelium.Module;
@@ -12,7 +11,7 @@ using IModule = FluentHelium.Module.IModule;
 
 namespace FluentHelium.Autofac.Tests
 {
-    public class AutofacModuleTests
+    public sealed class AutofacModuleTests
     {
         [Fact]
         public void GivenSimpleModule_WhenRegisterResolveResolveRelease_ThenModuleActivatedOnce()
@@ -51,14 +50,14 @@ namespace FluentHelium.Autofac.Tests
         {
             Given(CreateModule((m, dp, md, dd) => new { Module = m, Provider = dp })).
             When(_ => RegisterResolveResolveRelease(_.Module)).
-            ThenMock(_ => _.Provider.Received(1).Resolve(typeof(object)));
+            ThenMock(_ => _.Provider.Received(1).Resolve<object>());
         }
 
         [Fact]
         public void GivenAutofacModule_WhenActivateResolve_ThenDependencyResolvedCorrectly()
         {
             Given(CreateAutofacModule()).
-            When(_ => _.Activate(typeof(Input).ToDependencyProvider(t => ((object)new Input()).ToUsable())).Unwrap(p => p.Resolve(typeof(object)))).
+            When(_ => _.Activate(typeof(Input).ToDependencyProvider(t => ((object)new Input()).ToUsable())).Unwrap(p => p.Resolve<object>())).
             Then(_ => _.Do(o => o.Should().BeOfType<Input>()));
         }
 
@@ -66,7 +65,7 @@ namespace FluentHelium.Autofac.Tests
         {
             var builder = new ContainerBuilder();
             builder.RegisterInstance(new Input());
-            builder.RegisterFluentHeliumModule(module);
+            builder.RegisterFluentHeliumModule<object>(module);
             return builder;
         }
 
@@ -81,7 +80,6 @@ namespace FluentHelium.Autofac.Tests
                     b.Register(c => (object) c.Resolve<Input>());
                 });
         }
-           
 
         private static T CreateModule<T>(Func<IModule, IDependencyProvider, IDisposable, IDisposable, T> toResult)
         {
@@ -92,8 +90,8 @@ namespace FluentHelium.Autofac.Tests
             var dependencyDeactivator = For<IDisposable>();
             module.Activate(Arg.Any<IDependencyProvider>()).Returns(o =>
             {
-                var input = o.Arg<IDependencyProvider>().Resolve(typeof (Input));
-                provider.Resolve(typeof (object)).Returns(input.Unwrap(i => i).ToUsable(dependencyDeactivator));
+                var input = o.Arg<IDependencyProvider>().Resolve<Input>();
+                provider.Resolve(typeof (object)).Returns(input.Unwrap(i => (object)i).ToUsable(dependencyDeactivator));
                 return provider.ToUsable(moduleDeactivator);
             });
             return toResult(module, provider, moduleDeactivator, dependencyDeactivator);

@@ -10,9 +10,12 @@ namespace FluentHelium.Module
     { 
         public enum Color { White, Gray, Black }
         
-        public static void WritePlantUml(this IImmutableDictionary<IModuleDescriptor, ILookup<IModuleDescriptor, Type>> dependencies, TextWriter writer)
+        public static void WritePlantUml(
+            this IImmutableDictionary<IModuleDescriptor, ILookup<IModuleDescriptor, Type>> dependencies, 
+            TextWriter writer,
+            Func<IEnumerable<Type>, IModuleDescriptor, IModuleDescriptor, IEnumerable<Type>> filter)
         {
-            foreach (var line in dependencies.SelectMany(p => p.Value.Select(g => ToPlantUml(p.Key, g.Key, g.First()))))
+            foreach (var line in dependencies.SelectMany(p => p.Value.SelectMany(g => filter(g, p.Key, g.Key).Select(t => ToPlantUml(p.Key, g.Key, t)))))
             {
                 writer.WriteLine(line);
             }
@@ -27,7 +30,7 @@ namespace FluentHelium.Module
         {
             using (var writer = new StringWriter())
             {
-                graph.InnerDependencies.WritePlantUml(writer);
+                graph.InnerDependencies.WritePlantUml(writer, (t, l, r) => t.Take(1));
                 return writer.ToString();
             }
         }
