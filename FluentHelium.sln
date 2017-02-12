@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentHelium.Autofac", "Flu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentHelium.Bdd", "FluentHelium.Bdd\FluentHelium.Bdd.csproj", "{AEA3794B-F5E7-4940-A28D-5D450BAE2D31}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentHelium.Autofac.Tests", "FluentHelium.Autofac.Tests\FluentHelium.Autofac.Tests.csproj", "{F4DD0597-F90F-43D7-B867-5310314315CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,12 +37,17 @@ Global
 		{AEA3794B-F5E7-4940-A28D-5D450BAE2D31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AEA3794B-F5E7-4940-A28D-5D450BAE2D31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AEA3794B-F5E7-4940-A28D-5D450BAE2D31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4DD0597-F90F-43D7-B867-5310314315CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4DD0597-F90F-43D7-B867-5310314315CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4DD0597-F90F-43D7-B867-5310314315CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4DD0597-F90F-43D7-B867-5310314315CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{32BF0FD5-0310-4917-A205-CB48CF97B333} = {FAA1C83F-D955-490B-A1B5-EDDF10392866}
+		{F4DD0597-F90F-43D7-B867-5310314315CC} = {FAA1C83F-D955-490B-A1B5-EDDF10392866}
 	EndGlobalSection
 	GlobalSection(MercurialSourceControlSolutionProperties) = preSolution
 		SolutionIsControlled = True

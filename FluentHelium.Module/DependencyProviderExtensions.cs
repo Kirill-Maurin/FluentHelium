@@ -37,5 +37,11 @@ namespace FluentHelium.Module
 
         public static IDependencyProvider ToDependencyProvider(this IImmutableSet<Type> types, Func<Type, Usable<object>> resolver) =>
             new DependencyProvider(resolver, types);
+
+        public static IDependencyProvider ToDependencyProvider(this IEnumerable<Type> types, Func<Type, Usable<object>> resolver) =>
+            types.ToImmutableHashSet().ToDependencyProvider(resolver);
+
+        public static IDependencyProvider ToDependencyProvider(this Type @type, Func<Type, Usable<object>> resolver) =>
+            new[] { @type }.ToDependencyProvider(resolver);
     }
 }

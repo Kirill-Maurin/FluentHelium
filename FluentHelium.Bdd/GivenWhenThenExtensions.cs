@@ -5,8 +5,9 @@ namespace FluentHelium.Bdd
 {
     public static class GivenWhenThenExtensions
     {
-        public static GivenResult<T, object> Given<T>(T result) => new GivenResult<T, object>(result, null);
-        public static GivenResult<T, object> Given<T>(Func<T> result) => new GivenResult<T, object>(result(), null);
+        public static GivenResult<T, T> Given<T>(T result) => new GivenResult<T, T>(result, result);
+
+        public static GivenResult<T, T> Given<T>(Func<T> result) => Given(result());
 
         public static GivenResult<TResult, TMock> And<T, TMock, TResult>(this GivenResult<T, TMock> givenResult, Func<T, TMock, TResult> and) => 
             new GivenResult<TResult, TMock>(and(givenResult.Result, givenResult.Mock), givenResult.Mock);
