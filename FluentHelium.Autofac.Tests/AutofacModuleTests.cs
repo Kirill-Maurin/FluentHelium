@@ -50,7 +50,7 @@ namespace FluentHelium.Autofac.Tests
         {
             Given(CreateModule((m, dp, md, dd) => new { Module = m, Provider = dp })).
             When(_ => RegisterResolveResolveRelease(_.Module)).
-            ThenMock(_ => _.Provider.Received(1).Resolve<object>());
+            ThenMock(_ => _.Provider.Received(1).Resolve(typeof(object)));
         }
 
         [Fact]
