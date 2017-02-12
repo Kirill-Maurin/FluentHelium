@@ -1,6 +1,6 @@
 using System;
 
-namespace FluentHelium.Module.Tests.BDD
+namespace FluentHelium.Bdd
 {
     public sealed class ThenResult<T, TMock> : GivenWhenThenBase<T, TMock>
     {

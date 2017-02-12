@@ -3,6 +3,12 @@
 
 namespace FluentHelium.Module
 {
+    /// <summary>
+    /// Back side of Lazy 
+    /// Lazy can be use after first Value property access
+    /// Usable can be use before Dispose call
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public sealed class Usable<T> : IDisposable where T: class
     {
         internal Usable(T resource, IDisposable usageTime) : this(resource, usageTime.Dispose) {}

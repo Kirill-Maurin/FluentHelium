@@ -2,9 +2,8 @@
 using System.Collections.Immutable;
 using System.Linq;
 using FluentAssertions;
-using FluentHelium.Module.Tests.BDD;
 using Xunit;
-using static FluentHelium.Module.Tests.BDD.GivenWhenThenExtensions;
+using static FluentHelium.Bdd.GivenWhenThenExtensions;
 
 namespace FluentHelium.Module.Tests
 {

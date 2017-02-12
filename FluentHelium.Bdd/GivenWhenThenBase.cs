@@ -1,4 +1,4 @@
-namespace FluentHelium.Module.Tests.BDD
+namespace FluentHelium.Bdd
 {
     public abstract class GivenWhenThenBase<T, TMock>
     {

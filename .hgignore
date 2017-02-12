@@ -7,3 +7,4 @@ packages
 .suo
 .vs
 *.lock.json
+*.sln.DotSettings.user

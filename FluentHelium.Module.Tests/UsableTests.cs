@@ -2,7 +2,7 @@
 using FluentAssertions;
 using NSubstitute;
 using Xunit;
-using static FluentHelium.Module.Tests.BDD.GivenWhenThenExtensions;
+using static FluentHelium.Bdd.GivenWhenThenExtensions;
 using static NSubstitute.Substitute;
 
 namespace FluentHelium.Module.Tests
@@ -10,7 +10,7 @@ namespace FluentHelium.Module.Tests
     public class UsableTests
     {
         [Fact]
-        public void GivenDisposableWhenDisposeThenusageTimeShouldBeDisposed()
+        public void GivenDisposable_WhenDisposeThenusage_TimeShouldBeDisposed()
         {
             Given(For<IDisposable>()).
                 And(usageTime => For<IDisposable>().ToUsable(usageTime)).
@@ -19,7 +19,7 @@ namespace FluentHelium.Module.Tests
         }
 
         [Fact]
-        public void GivenActionDisposableWhenDisposeThenActionShouldBeCalledOnce()
+        public void GivenActionDisposable_WhenDispose_ThenActionShouldBeCalledOnce()
         {
             Given(For<IDisposable>()).
                 And(_ => _.ToUsable(v => v.Dispose())).
@@ -28,7 +28,7 @@ namespace FluentHelium.Module.Tests
         }
 
         [Fact]
-        public void GivenNeutralUsableWhenDisposeThenValueShouldBeNotDisposed()
+        public void GivenNeutralUsable_WhenDispose_ThenValueShouldBeNotDisposed()
         {
             Given(For<IDisposable>()).
                 And(_ => _.ToUsable()).
@@ -37,7 +37,7 @@ namespace FluentHelium.Module.Tests
         }
 
         [Fact]
-        public void GivenObjectWhenToUsableThenValueShouldBeSameAsObject()
+        public void GivenObject_WhenToUsable_ThenValueShouldBeSameAsObject()
         {
             Given(For<object>()).
                 And(_ => _.ToUsable(For<IDisposable>())).
@@ -46,7 +46,7 @@ namespace FluentHelium.Module.Tests
         }
 
         [Fact]
-        public void GivenSelfUsableWhenDisposeThenValueShouldBeDisposed()
+        public void GivenSelfUsable_WhenDispose_ThenValueShouldBeDisposed()
         {
             Given(For<IDisposable>()).
                 And(_ => _.ToSelfUsable()).
@@ -55,7 +55,7 @@ namespace FluentHelium.Module.Tests
         }
 
         [Fact]
-        public void GivenDisposableWhenDisposeTwiceThenShouldBeDisposedTwice()
+        public void GivenDisposable_WhenDisposeTwice_ThenShouldBeDisposedTwice()
         {
             Given(For<IDisposable>()).
                 And(mock => For<object>().ToUsable(mock)).

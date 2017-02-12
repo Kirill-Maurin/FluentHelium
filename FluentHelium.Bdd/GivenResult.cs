@@ -1,4 +1,4 @@
-namespace FluentHelium.Module.Tests.BDD
+namespace FluentHelium.Bdd
 {
     public sealed class GivenResult<T, TMock> : GivenWhenThenBase<T, TMock>
     {

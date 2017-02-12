@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentHelium.Module.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentHelium.Autofac", "FluentHelium.Autofac\FluentHelium.Autofac.csproj", "{16B245E2-975C-4A57-8E52-84CB8298FAA2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentHelium.Bdd", "FluentHelium.Bdd\FluentHelium.Bdd.csproj", "{AEA3794B-F5E7-4940-A28D-5D450BAE2D31}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{16B245E2-975C-4A57-8E52-84CB8298FAA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16B245E2-975C-4A57-8E52-84CB8298FAA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16B245E2-975C-4A57-8E52-84CB8298FAA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEA3794B-F5E7-4940-A28D-5D450BAE2D31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEA3794B-F5E7-4940-A28D-5D450BAE2D31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEA3794B-F5E7-4940-A28D-5D450BAE2D31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEA3794B-F5E7-4940-A28D-5D450BAE2D31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

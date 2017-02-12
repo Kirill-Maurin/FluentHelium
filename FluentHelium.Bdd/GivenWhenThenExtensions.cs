@@ -1,7 +1,7 @@
 using System;
-using FluentAssertions;
 
-namespace FluentHelium.Module.Tests.BDD
+
+namespace FluentHelium.Bdd
 {
     public static class GivenWhenThenExtensions
     {
@@ -124,40 +124,37 @@ namespace FluentHelium.Module.Tests.BDD
         {
             return whenResult.Then((r, m, e) =>
             {
-                e.Should().Be(null);
+                CheckNull(e);
                 then(r);
             });
         }
 
-        public static ThenResult<T, TMock> Then<T, TMock>(this WhenResult<T, TMock> whenResult, Func<T, bool> then)
+        private static void CheckNull(Exception e)
         {
-            return whenResult.Then((r, m, e) => e == null && then(r));
+            if (e != null)
+                throw new InvalidOperationException($"Test has thrown an exception {e.GetType().Name}:{e.Message}", e);
         }
 
-        public static ThenResult<T, TMock> Then<T, TMock>(this WhenResult<T, TMock> whenResult, Func<T, TMock, Exception, bool> then)
+        private static void CheckNotNull(Exception e)
         {
-            return whenResult.Then((r, m, e) => { then(r, m, e).Should().Be(true); });
+            if (e == null)
+                throw new InvalidOperationException("Test has thrown no exception");
         }
 
         public static ThenResult<T, TMock> ThenCatch<T, TMock>(this WhenResult<T, TMock> whenResult, Action<Exception> then)
         {
             return whenResult.Then((r, m, e) =>
             {
-                e.Should().NotBe(null);
+                CheckNotNull(e);
                 then(e);
             });
-        }
-
-        public static ThenResult<T, TMock> ThenCatch<T, TMock>(this WhenResult<T, TMock> whenResult, Func<Exception, bool> then)
-        {
-            return whenResult.Then((r, m, e) => e != null && then(e));
         }
 
         public static ThenResult<T, TMock> Then<T, TMock>(this WhenResult<T, TMock> whenResult, Action<T, TMock> then)
         {
             return whenResult.Then((r, m, e) =>
             {
-                e.Should().Be(null);
+                CheckNull(e); 
                 then(r, m);
             });
         }
@@ -166,16 +163,10 @@ namespace FluentHelium.Module.Tests.BDD
         {
             return whenResult.Then((r, m, e) =>
             {
-                e.Should().Be(null);
+                CheckNull(e);
                 then(m);
             });
         }
-
-        public static ThenResult<T, TMock> ThenMock<T, TMock>(this WhenResult<T, TMock> whenResult, Func<TMock, bool> then)
-        {
-            return whenResult.Then((r, m, e) => e == null && then(m));
-        }
-
 
         public static ThenResult<T, TMock> And<T, TMock>(this ThenResult<T, TMock> thenResult, Action<T> and)
         {
@@ -185,16 +176,6 @@ namespace FluentHelium.Module.Tests.BDD
         public static ThenResult<T, TMock> And<T, TMock>(this ThenResult<T, TMock> thenResult, Action<T, TMock> and)
         {
             return thenResult.And((o, m, e) => and(o, m));
-        }
-
-        public static ThenResult<T, TMock> And<T, TMock>(this ThenResult<T, TMock> thenResult, Func<T, TMock, bool> and)
-        {
-            return thenResult.And((o, m, e) => and(o, m).Should().Be(true));
-        }
-
-        public static ThenResult<T, TMock> And<T, TMock>(this ThenResult<T, TMock> thenResult, Func<T, bool> and)
-        {
-            return thenResult.And((o, m) => and(o));
         }
 
         public static ThenResult<T, TMock> AndMock<T, TMock>(this ThenResult<T, TMock> thenResult, Action<TMock> and)
