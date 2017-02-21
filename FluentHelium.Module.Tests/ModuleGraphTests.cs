@@ -87,7 +87,7 @@ namespace FluentHelium.Module.Tests
                 return new[] {a, b};
             }).
             When(_ => _.ToModuleGraph((c, t, i) => i.First()).ToPlantUml()).
-            Then(_ => _.Should().StartWith("[B] -> [A] : Int32"));
+            Then(_ => _.Should().StartWith("[B] ..> [A] : Int32"));
         }
 
         [Fact]

@@ -21,10 +21,8 @@ namespace FluentHelium.Module
             }
         }
 
-        private static string ToPlantUml(IModuleDescriptor source, IModuleDescriptor dest, Type @type)
-        {
-            return $"[{source.Name}] -> [{dest.Name}] : {@type.Name}";
-        }
+        private static string ToPlantUml(IModuleDescriptor client, IModuleDescriptor implementation, Type @type) => 
+            $"[{client.Name}] ..> [{implementation.Name}] : {@type.Name}";
 
         public static string ToPlantUml(this IModuleGraph graph)
         {

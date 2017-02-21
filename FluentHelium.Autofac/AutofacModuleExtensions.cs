@@ -42,7 +42,6 @@ namespace FluentHelium.Autofac
                 MakeGenericMethod(dependency).
                 Invoke(null, new object[] {builder, action});
 
-
         public static IModule ToAutofacModule(this IModuleDescriptor descriptor, Action<ContainerBuilder> registrator) =>
             new AutofacModule(descriptor, registrator);
 
