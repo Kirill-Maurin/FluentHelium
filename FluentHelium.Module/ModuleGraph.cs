@@ -7,26 +7,23 @@ namespace FluentHelium.Module
 {
     internal sealed class ModuleGraph : IModuleGraph {
         public ModuleGraph(
-            IImmutableDictionary<IModuleDescriptor, ILookup<IModuleDescriptor, Type>> innerDependencies, 
+            IImmutableDictionary<IModuleDescriptor, IModuleDependencies> dependencies, 
             ILookup<Type, IModuleDescriptor> input, 
             ILookup<Type, IModuleDescriptor> output, 
             IImmutableList<IModuleDescriptor> order, 
-            ILookup<KeyValuePair<IModuleDescriptor, Type>, IModuleDescriptor> excessive, 
-            IImmutableList<KeyValuePair<IModuleDescriptor, IEnumerable<Type>>> cycle)
+            IImmutableList<IModuleDescriptor> cycle)
         {
-            InnerDependencies = innerDependencies;
+            Dependencies = dependencies;
             Input = input;
             Output = output;
             Order = order;
-            Excessive = excessive;
             Cycle = cycle;
         }
 
-        public IImmutableDictionary<IModuleDescriptor, ILookup<IModuleDescriptor, Type>> InnerDependencies { get; }
+        public IImmutableDictionary<IModuleDescriptor, IModuleDependencies> Dependencies { get; }
         public ILookup<Type, IModuleDescriptor> Input { get; }
         public ILookup<Type, IModuleDescriptor> Output { get; }
         public IImmutableList<IModuleDescriptor> Order { get; }
-        public ILookup<KeyValuePair<IModuleDescriptor, Type>, IModuleDescriptor> Excessive { get; }
-        public IImmutableList<KeyValuePair<IModuleDescriptor, IEnumerable<Type>>> Cycle { get; }
+        public IImmutableList<IModuleDescriptor> Cycle { get; }
     }
 }

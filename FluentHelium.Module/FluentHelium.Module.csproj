@@ -45,19 +45,28 @@
   <ItemGroup>
     <Compile Include="DependencyProvider.cs" />
     <Compile Include="DependencyProviderExtensions.cs" />
+    <Compile Include="ExternalDependencyBuilder.cs" />
     <Compile Include="IDependencyProvider.cs" />
     <Compile Include="ImmutableDictionaryExtensions.cs" />
     <Compile Include="IModule.cs" />
     <Compile Include="IModuleController.cs" />
+    <Compile Include="IModuleDependencies.cs" />
+    <Compile Include="IModuleDependencyBuilder.cs" />
     <Compile Include="IModuleDescriptor.cs" />
     <Compile Include="IModuleGraph.cs" />
+    <Compile Include="IModuleInputDependency.cs" />
     <Compile Include="KeyValueExtensions.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="ModuleController.cs" />
+    <Compile Include="ModuleDependencies.cs" />
     <Compile Include="ModuleDescriptor.cs" />
     <Compile Include="ModuleExtensions.cs" />
     <Compile Include="ModuleGraph.cs" />
+    <Compile Include="ModuleInputDependency.cs" />
+    <Compile Include="ModuleLink.cs" />
+    <Compile Include="ModuleOutputDependency.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleDependencyBuilder.cs" />
     <Compile Include="Usable.cs" />
     <Compile Include="UsableExtensions.cs" />
   </ItemGroup>

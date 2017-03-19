@@ -91,7 +91,7 @@ namespace FluentHelium.Autofac.Tests
             module.Activate(Arg.Any<IDependencyProvider>()).Returns(o =>
             {
                 var input = o.Arg<IDependencyProvider>().Resolve<Input>();
-                provider.Resolve(typeof (object)).Returns(input.Unwrap(i => (object)i).ToUsable(dependencyDeactivator));
+                provider.Resolve(typeof (object)).Returns(input.Select(i => (object)i).SelectUsable(d => dependencyDeactivator));
                 return provider.ToUsable(moduleDeactivator);
             });
             return toResult(module, provider, moduleDeactivator, dependencyDeactivator);

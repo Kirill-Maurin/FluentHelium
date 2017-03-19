@@ -8,19 +8,75 @@ namespace FluentHelium.Module
 {
     public static class ModuleExtensions
     { 
+        public static readonly Guid External = new Guid("{6671930C-FC8F-4148-A596-097D94285279}");
+        public static bool IsExternal(this IModuleDescriptor descriptor) => descriptor.Id == External;
+        public static IModuleDescriptor ExternalModule { get; } = new ModuleDescriptor("External", External, null, null);
+        public static ExternalDependencyBuilder ExternalDependencyBuilder { get; } = new ExternalDependencyBuilder();
+
+        public static IModuleDependencyBuilder ElseExternal(
+            this Func<IModuleDependencyBuilder, IModuleDependencyBuilder> linkFallback) =>
+            linkFallback(ExternalDependencyBuilder);
+
+        public static Func<IModuleDependencyBuilder, IModuleDependencyBuilder> DependencyBuilder() => b => b;
+        public static Func<IModuleDependencyBuilder, IModuleDependencyBuilder> Simple(this Func<IModuleDependencyBuilder, IModuleDependencyBuilder> linkFallback) =>
+            b => new SimpleDependencyBuilder(b);
+
         public enum Color { White, Gray, Black }
-        
+
+        public static ModuleOutputDependency ToModuleOutputDependency(
+            this Type @interface, IModuleDescriptor descriptor) =>
+            new ModuleOutputDependency(descriptor, @interface);
+
+        public static IModuleInputDependency ToModuleInputDependency(
+            this IEnumerable<ModuleOutputDependency> dependencies,
+            IModuleDescriptor client,
+            Type @interface, 
+            Func<Func<IModuleDescriptor, IDependencyProvider>, Usable<object>> resolver) =>
+            new ModuleInputDependency(@interface, dependencies, resolver, client);
+
+        public static IModuleInputDependency ToModuleInputDependency(
+            this Type @interface,
+            IModuleDescriptor client,
+            Func<Usable<object>> resolver) =>
+            new ModuleInputDependency(@interface, Enumerable.Empty<ModuleOutputDependency>(), provider => resolver(), client);
+
+        public static IModuleInputDependency ToModuleInputDependency(
+            this ModuleOutputDependency source,
+            IModuleDescriptor client,
+            Type @interface,
+            Func<Func<IModuleDescriptor, IDependencyProvider>, Usable<object>> resolver) =>
+            new ModuleInputDependency(@interface, new [] {source}, resolver, client);
+
+        public static IModuleInputDependency ToModuleInputDependency(
+            this IModuleDescriptor source,
+            IModuleDescriptor client,
+            Type @interface,
+            Func<Func<IModuleDescriptor, IDependencyProvider>, Usable<object>> resolver) =>
+            new ModuleInputDependency(@interface, new[] { @interface.ToModuleOutputDependency(source) }, resolver, client);
+
+        public static IModuleInputDependency ToModuleInputDependency(
+            this IModuleDescriptor source,
+            IModuleDescriptor client,
+            Type @interface,
+            Func<IModuleDescriptor, Func<IModuleDescriptor, IDependencyProvider>, Usable<object>> resolver) =>
+            new ModuleInputDependency(@interface, new[] { @interface.ToModuleOutputDependency(source) }, r => resolver(source, r), client);
+
         public static void WritePlantUml(
-            this IImmutableDictionary<IModuleDescriptor, ILookup<IModuleDescriptor, Type>> dependencies, 
+            this IImmutableDictionary<IModuleDescriptor, IModuleDependencies> dependencies, 
             TextWriter writer,
             Func<IEnumerable<Type>, IModuleDescriptor, IModuleDescriptor, IEnumerable<Type>> filter)
         {
-            foreach (var line in dependencies.SelectMany(p => p.Value.SelectMany(g => filter(g, p.Key, g.Key).Select(t => ToPlantUml(p.Key, g.Key, t)))))
+            foreach (var line in dependencies.SelectMany(
+                p => p.Value.SelectMany(i => i.Output.
+                    Select(o => new { i.Client, i.Input, o.Output, o.Implementation }).
+                    GroupBy(l => l.Implementation).
+                    SelectMany(g => filter(g.Select(d => d.Output), p.Key, g.Key).
+                    Select(t => ToPlantUml(p.Key, g.Key, t))))))
             {
                 writer.WriteLine(line);
             }
         }
-
+   
         private static string ToPlantUml(IModuleDescriptor client, IModuleDescriptor implementation, Type @type) => 
             $"[{client.Name}] ..> [{implementation.Name}] : {@type.Name}";
 
@@ -28,7 +84,7 @@ namespace FluentHelium.Module
         {
             using (var writer = new StringWriter())
             {
-                graph.InnerDependencies.WritePlantUml(writer, (t, l, r) => t.Take(1));
+                graph.Dependencies.WritePlantUml(writer, (t, l, r) => t.Take(1));
                 return writer.ToString();
             }
         }
@@ -58,7 +114,7 @@ namespace FluentHelium.Module
             var output = graph.Output.
                 Select(g => g.Key.LinkKey(tryChoiceOutput(g.Key, g))).
                 Where(p => p.Key != null).
-                ToImmutableArray();
+                ToImmutableList();
             var descriptor = graph.Input.Select(g => g.Key).ToModuleDescriptor(name, id, output.Select(p => p.Value));
             return descriptor.ToModule(dependencies =>
                 graph.Activate(dependencies, modules).
@@ -81,11 +137,8 @@ namespace FluentHelium.Module
             var providers = new Dictionary<IModuleDescriptor, IDependencyProvider>();
             foreach (var module in graph.Order)
             {
-                var innerDependencies
-                    = graph.InnerDependencies[module];
-                var inputProvider = innerDependencies.Aggregate(
-                    kernel.Except(innerDependencies.SelectMany(m => m)),
-                    (p, m) => p.Union(providers[m.Key].Restrict(m)));
+                var inputProvider = module.Input.ToDependencyProvider(t => graph.Dependencies[module][t].Resolve(
+                    d => d.IsExternal() ? kernel : providers[d]));
                 var result = modules[module].Activate(inputProvider);
                 activated.Push(result);
                 providers[module] = result.Value;
@@ -104,87 +157,91 @@ namespace FluentHelium.Module
             this IModuleGraph graph, IImmutableDictionary<IModuleDescriptor, IModule> modules, IDependencyProvider input) =>
             new ModuleController(graph, input, modules);
 
+        public static IModuleGraph ToModuleGraphSimple(this IEnumerable<IModuleDescriptor> modules) =>
+            modules.ToModuleGraph(DependencyBuilder().Simple().ElseExternal());
+
         public static IModuleGraph ToModuleGraph(
             this IEnumerable<IModuleDescriptor> modules, 
-            Func<IModuleDescriptor, Type, IEnumerable<IModuleDescriptor>, IModuleDescriptor> tryChoiceImplementation)
+            IModuleDependencyBuilder builder)
         {
-            var modulesArray = modules.ToImmutableArray();
-            var outputs = modulesArray.SelectMany(m => m.Output.Select(m.LinkKey)).ToLookup(p => p.Key, p => p.Value);
-            var innerByType = modulesArray.SelectMany(m => m.Input.Select(m.LinkValue)).Select(p => new
-            {
-                Client = p.Key,
-                Type = p.Value,
-                Implementations = outputs[p.Value],
-            }).Select(l => new
-            {
-                l.Client, l.Type, l.Implementations,
-                Choosed = l.Implementations.Any() ? tryChoiceImplementation(l.Client, l.Type, l.Implementations) : null
-            }).ToImmutableArray();
-            var links = innerByType.GroupBy(p => p.Choosed).ToImmutableDictionary(g => g.Key, g => g.GroupBy(l => l.Client, l => l.Type));
-            var inputs = innerByType.Where(p => p.Choosed == null).ToLookup(p => p.Type, p => p.Client);
-            var path = new Stack<IModuleDescriptor>();
-            var result = new Stack<IModuleDescriptor>();
-            var colors = Enumerable.Range(0, modulesArray.Length).ToDictionary(i => modulesArray[i], i => Color.White);
+            var moduleList = modules.ToImmutableList();
+            var outputs = moduleList.
+                SelectMany(m => m.Output.Select(m.LinkKey)).
+                ToLookup(p => p.Key, p => p.Value);
+            var inner = moduleList.ToImmutableDictionary(
+                m => m,
+                m => (IModuleDependencies)new ModuleDependencies(m.Input.ToImmutableDictionary(t => t, t => builder.Build(m, t, outputs)), m));
+            var inputs = inner.
+                SelectMany(p => p.Value.
+                    SelectMany(d => d.Output.
+                        Where(o => o.Implementation.IsExternal()).
+                        Select(o => o.Output)).
+                    Distinct().
+                    Select(t => t.LinkValue(p.Key))).
+                ToLookup(p => p.Key, p => p.Value);
+            IEnumerable<IModuleDescriptor> order;
+            return TryTopologySort(
+                moduleList,
+                m => inner.GetValueOrDefault(m)?.Links.Select(l => l.Key).Where(i => !i.IsExternal()) ?? Enumerable.Empty<IModuleDescriptor>(),
+                out order)
+                ? CreateSortedModuleGraph(order, inner, inputs, outputs)
+                : CreateModuleGraphWithCycle(inner, inputs, outputs, order);
+        }
 
-            var inner = innerByType.Where(t => t.Choosed != null).GroupBy(t => t.Client).
-                ToImmutableDictionary(g => g.Key, g => g.ToLookup(p => p.Choosed, p => p.Type));
-            var excessive = innerByType.Where(p => p.Choosed == null).SelectMany(p => p.Implementations.Select(i => new
-            {
-                p.Client,
-                p.Type,
-                Implementation = i
-            })).ToLookup(p => p.Client.LinkValue(p.Type), p => p.Implementation);
-            foreach (var m in modulesArray.Where(m => colors[m] == Color.White))
+        public static bool TryTopologySort<T>(
+            IEnumerable<T> modules,
+            Func<T, IEnumerable<T>> getLinks,
+            out IEnumerable<T> order) where T: class
+        {
+            var moduleList = modules.ToImmutableList();
+            var path = new Stack<T>();
+            var result = new List<T>();
+            var colors = Enumerable.Range(0, moduleList.Count).ToDictionary(i => moduleList[i], i => Color.White);
+
+            foreach (var m in moduleList.Where(m => colors[m] == Color.White))
             {
                 var current = m;
                 colors[current] = Color.Gray;
-                for(;;)
+                for (;;)
                 {
-                    var next = links.GetValueOrDefault(current)?.FirstOrDefault(g => colors[g.Key] != Color.Black);
+                    var next = getLinks(current).FirstOrDefault(l => colors[l] != Color.Black);
                     if (next == null)
                     {
                         colors[current] = Color.Black;
-                        result.Push(current);
+                        result.Add(current);
                         if (path.Count == 0)
                             break;
                         current = path.Pop();
                         continue;
                     }
                     path.Push(current);
-                    if (colors[next.Key] == Color.Gray)
-                        return CreateModuleGraphWithCycle(
-                            inner,
-                            excessive,
-                            inputs,
-                            outputs,
-                            path);
-                    current = next.Key;
+                    if (colors[next] == Color.Gray)
+                    {
+                        order = path;
+                        return false;
+                    }
+                    current = next;
                     colors[current] = Color.Gray;
                 }
             }
-            return CreateSortedModuleGraph(result, inner, excessive, inputs, outputs);
+            order = result;
+            return true;
         }
 
         private static IModuleGraph CreateSortedModuleGraph(
-            Stack<IModuleDescriptor> result, 
-            IImmutableDictionary<IModuleDescriptor, ILookup<IModuleDescriptor, Type>> inner, 
-            ILookup<KeyValuePair<IModuleDescriptor, Type>, IModuleDescriptor> excessive, 
+            IEnumerable<IModuleDescriptor> result,
+            IImmutableDictionary<IModuleDescriptor, IModuleDependencies> inner, 
             ILookup<Type, IModuleDescriptor> inputs, 
             ILookup<Type, IModuleDescriptor> outputs)
         {
-            return new ModuleGraph(inner, inputs, outputs, result.ToImmutableList(), excessive, null);
+            return new ModuleGraph(inner, inputs, outputs, result.ToImmutableList(), null);
         }
 
         private static IModuleGraph CreateModuleGraphWithCycle(
-            IImmutableDictionary<IModuleDescriptor, ILookup<IModuleDescriptor, Type>> inner, 
-            ILookup<KeyValuePair<IModuleDescriptor, Type>, IModuleDescriptor> excessive, 
-            ILookup<Type, IModuleDescriptor> inputs, ILookup<Type, IModuleDescriptor> outputs, Stack<IModuleDescriptor> path)
+            IImmutableDictionary<IModuleDescriptor, IModuleDependencies> inner, 
+            ILookup<Type, IModuleDescriptor> inputs, ILookup<Type, IModuleDescriptor> outputs, IEnumerable<IModuleDescriptor> path)
         {
-            var modules = path.ToImmutableArray();
-            var cycle = path.Select((m, i) => m.LinkValue(modules[(i + 1)%modules.Length])).
-                Select(p => p.Key.LinkValue(inner[p.Key][p.Value]));
-
-            return new ModuleGraph(inner, inputs, outputs, null, excessive, cycle.ToImmutableList());
+            return new ModuleGraph(inner, inputs, outputs, null, path.ToImmutableList());
         }
     }
 }

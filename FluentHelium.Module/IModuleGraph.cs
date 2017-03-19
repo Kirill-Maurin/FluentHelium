@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -11,9 +10,9 @@ namespace FluentHelium.Module
     public interface IModuleGraph
     {
         /// <summary>
-        /// Dependencies inside module graph client -> (implementation, types)
+        /// Dependencies - client -> (type, dependency)
         /// </summary>
-        IImmutableDictionary<IModuleDescriptor, ILookup<IModuleDescriptor, Type>> InnerDependencies { get; }
+        IImmutableDictionary<IModuleDescriptor, IModuleDependencies> Dependencies { get; }
         /// <summary>
         /// Input dependencies (type, clients) - they needed be provided by kernel for successful intialization
         /// </summary>
@@ -23,16 +22,12 @@ namespace FluentHelium.Module
         /// </summary>
         ILookup<Type, IModuleDescriptor> Output { get; }
         /// <summary>
-        /// Initialization order - result of topology sorting of module graph
+        /// Initialization order - result of topology sorting
         /// </summary>
-        IImmutableList<IModuleDescriptor> Order { get; } 
+        IImmutableList<IModuleDescriptor> Order { get; }
         /// <summary>
-        /// Excessive links (client, type) -> implementations - failed to resolve input dependencies by modules on single way
+        /// Dependency cycle - if present initialization order cannot be found
         /// </summary>
-        ILookup<KeyValuePair<IModuleDescriptor, Type>, IModuleDescriptor> Excessive { get; }
-        /// <summary>
-        /// Dependency cycle - if present initialisation order cannot be found
-        /// </summary>
-        IImmutableList<KeyValuePair<IModuleDescriptor, IEnumerable<Type>>> Cycle { get; } 
+        IImmutableList<IModuleDescriptor> Cycle { get; } 
     }
 }

@@ -18,6 +18,12 @@ namespace FluentHelium.Module
             usageTime.Dispose();
         });
 
+        public static Usable<T> ToUsable<T>(this Usable<T> resource, Action dispose) where T : class => new Usable<T>(resource.Value, () =>
+        {
+            resource.Dispose();
+            dispose();
+        });
+
         public static Usable<T> ToSelfUsable<T>(this T resource) where T : class, IDisposable => resource.ToUsable(resource);
 
         public static Usable<T> ToUsable<T>(this T resource) where T : class => resource.ToUsable(DoNothing);
@@ -36,6 +42,17 @@ namespace FluentHelium.Module
 
         public static Usable<T> ToUsable<T>(this T resource, Func<T, Action> disposeFactory) where T : class => resource.ToUsable(() => disposeFactory(resource));
 
+        public static Func<Usable<T>> ToRefCount<T>(this Usable<T> source) where T : class
+        {
+            var refCount = new RefCountDisposable(source);
+            return () =>
+            {
+                var disposable = refCount.GetDisposable();
+                refCount.Dispose();
+                return source.SelectUsable(p => disposable);
+            };
+        }
+
         public static Usable<T> Wrap<T>(this IDisposable usageTime, T resource) where T : class => resource.ToUsable(usageTime);
 
         public static Usable<T> Wrap<T, TDisposable>(this TDisposable usageTime, Func<TDisposable, T> factory) where TDisposable : IDisposable where T : class => 
@@ -43,11 +60,15 @@ namespace FluentHelium.Module
 
         public static Usable<T> Select<TSource, T>(this Usable<TSource> source, Func<TSource, T> selector)
             where T : class where TSource : class =>
-                selector(source.Value).ToUsable(source.Dispose);
+                selector(source.Value).ToUsable(source);
 
         public static Usable<T> Select<TSource, T>(this Usable<TSource> source, Func<TSource, Usable<T>> selector)
             where T : class where TSource : class =>
                 selector(source.Value).ToUsable(source);
+
+        public static Usable<T> SelectUsable<T>(this Usable<T> source, Func<Usable<T>, IDisposable> selector)
+            where T : class =>
+                source.Value.ToUsable(selector(source));
 
         public static void Using<T>(this Usable<T> usable, Action<T> action) where T : class
         {
@@ -83,10 +104,10 @@ namespace FluentHelium.Module
             return @new;
         } 
 
-        public static Usable<T> Aggregate<TSource, T>(this IEnumerable<Usable<TSource>> source, T seed, Func<T, TSource, T> add) where T : class where TSource : class
+        public static Usable<IEnumerable<T>> ToAggregatedUsable<T>(this IEnumerable<Usable<T>> source) where T : class 
         {
-            var disposables = source.ToImmutableArray();
-            return disposables.Select(u => u.Value).Aggregate(seed, add).ToUsable(new CompositeDisposable(disposables));
+            var disposables = source.ToImmutableList();
+            return ((IEnumerable<T>)disposables.Select(u => u.Value).ToImmutableList()).ToUsable(new CompositeDisposable(disposables));
         }
     }
 }

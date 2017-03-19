@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
@@ -24,40 +23,44 @@ namespace FluentHelium.Module
 
         public IEnumerable<IModuleDescriptor> Modules => _modules.Keys;
 
-        public Usable<IDependencyProvider> GetProvider(IModuleDescriptor descriptor)
+        public Usable<IDependencyProvider> GetProvider(IModuleDescriptor descriptor) =>
+            _providers.GetOrAdd(descriptor, CreateProvider)();
+
+        private Func<Usable<IDependencyProvider>> CreateProvider(IModuleDescriptor descriptor)
         {
-            var record = _providers.GetOrAdd(descriptor, CreateProvider);
-            var disposable = record.Value.GetDisposable();
-            record.Value.Dispose();
-            return record.Key.ToUsable(disposable);
+            var dependecies = _graph.Dependencies[descriptor];
+            var provider = GetDependencyProviders(descriptor).
+                Select(i =>
+                {
+                    var result = _modules[descriptor].Activate(
+                        descriptor.Input.ToDependencyProvider(t => dependecies[t].Resolve(d => i[d])));
+                    _activeChanged.OnNext(descriptor.LinkValue(true));
+                    return result;
+                }).
+                ToUsable(() =>
+                {
+                    Func<Usable<IDependencyProvider>> r;
+                    _providers.TryRemove(descriptor, out r);
+                    _activeChanged.OnNext(descriptor.LinkValue(false));
+                });
+            return provider.ToRefCount();
         }
 
-        private KeyValuePair<IDependencyProvider, RefCountDisposable> CreateProvider(IModuleDescriptor descriptor)
-        {
-            var input = _graph.InnerDependencies.GetValue(descriptor).
-                Select(g => GetProvider(g.Key).Select(p => p.Restrict(g))).
-                ToImmutableArray();
-            var provider = input.
-                Aggregate(_input.Except(input.SelectMany(p => p.Value.Dependencies)), (l, r) => l.Union(r)).
-                Select(i => _modules[descriptor].Activate(i));
-            _activeChanged.OnNext(descriptor.LinkValue(true));
-
-            var disposable = new RefCountDisposable(Disposable.Create(() =>
-            {
-                provider.Dispose();
-                KeyValuePair<IDependencyProvider, RefCountDisposable> r;
-                _providers.TryRemove(descriptor, out r);
-                _activeChanged.OnNext(descriptor.LinkValue(false));
-            }));
-            return provider.Unwrap(p => p.LinkValue(disposable));
-        }
+        private Usable<ImmutableDictionary<IModuleDescriptor, IDependencyProvider>> GetDependencyProviders(IModuleDescriptor descriptor) =>
+            _graph.
+                Dependencies[descriptor].
+                SelectMany(d => d.Output.Select(o => o.Implementation)).
+                Distinct().
+                Select(d => (d.IsExternal() ? _input.ToUsable() : GetProvider(d)).Select(p => new { Descriptor = d, Provider = p})).
+                ToAggregatedUsable().
+                Select(l => l.ToImmutableDictionary(p => p.Descriptor, p => p.Provider));
 
         public bool IsActive(IModuleDescriptor descriptor) => _providers.ContainsKey(descriptor);
 
         public IObservable<KeyValuePair<IModuleDescriptor, bool>> ActiveChanged { get; }
 
-        private readonly ConcurrentDictionary<IModuleDescriptor, KeyValuePair<IDependencyProvider, RefCountDisposable>> _providers = 
-            new ConcurrentDictionary<IModuleDescriptor, KeyValuePair<IDependencyProvider, RefCountDisposable>>();
+        private readonly ConcurrentDictionary<IModuleDescriptor, Func<Usable<IDependencyProvider>>> _providers = 
+            new ConcurrentDictionary<IModuleDescriptor, Func<Usable<IDependencyProvider>>>();
 
         private readonly IDependencyProvider _input;
         private readonly IImmutableDictionary<IModuleDescriptor, IModule> _modules;
