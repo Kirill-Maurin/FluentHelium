@@ -3,7 +3,8 @@ using System.Collections.Immutable;
 
 namespace FluentHelium.Module
 {
-    internal sealed class ModuleDescriptor : IModuleDescriptor {
+    internal sealed class ModuleDescriptor : IModuleDescriptor
+    {
         public ModuleDescriptor(string name, Guid id, IImmutableSet<Type> input, IImmutableSet<Type> output)
         {
             Name = name;

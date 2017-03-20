@@ -19,7 +19,12 @@ namespace FluentHelium.Module
 
         public static Func<IModuleDependencyBuilder, IModuleDependencyBuilder> DependencyBuilder() => b => b;
         public static Func<IModuleDependencyBuilder, IModuleDependencyBuilder> Simple(this Func<IModuleDependencyBuilder, IModuleDependencyBuilder> linkFallback) =>
-            b => new SimpleDependencyBuilder(b);
+            b => linkFallback(new SimpleDependencyBuilder(b));
+        public static Func<IModuleDependencyBuilder, IModuleDependencyBuilder> Optional(
+            this Func<IModuleDependencyBuilder, IModuleDependencyBuilder> linkFallback) =>
+            b => linkFallback(new OptionalDependencyBuilder(b));
+        public static Func<IModuleDependencyBuilder, IModuleDependencyBuilder> Multiple(this Func<IModuleDependencyBuilder, IModuleDependencyBuilder> linkFallback) =>
+            b => new MultipleDependencyBuilder(b);
 
         public enum Color { White, Gray, Black }
 
@@ -106,7 +111,7 @@ namespace FluentHelium.Module
             Func<IDependencyProvider, Usable<IDependencyProvider>> activator) =>
                 new Module(descriptor, activator);
 
-        public static IModule ToModule(this IModuleGraph graph,
+        public static IModule ToSuperModule(this IModuleGraph graph,
             Func<Type, IEnumerable<IModuleDescriptor>, IModuleDescriptor> tryChoiceOutput, string name, Guid id, IImmutableDictionary<IModuleDescriptor, IModule> modules)
         {
             if (graph.Cycle != null)
@@ -232,16 +237,12 @@ namespace FluentHelium.Module
             IEnumerable<IModuleDescriptor> result,
             IImmutableDictionary<IModuleDescriptor, IModuleDependencies> inner, 
             ILookup<Type, IModuleDescriptor> inputs, 
-            ILookup<Type, IModuleDescriptor> outputs)
-        {
-            return new ModuleGraph(inner, inputs, outputs, result.ToImmutableList(), null);
-        }
+            ILookup<Type, IModuleDescriptor> outputs) => 
+            new ModuleGraph(inner, inputs, outputs, result.ToImmutableList(), null);
 
         private static IModuleGraph CreateModuleGraphWithCycle(
             IImmutableDictionary<IModuleDescriptor, IModuleDependencies> inner, 
-            ILookup<Type, IModuleDescriptor> inputs, ILookup<Type, IModuleDescriptor> outputs, IEnumerable<IModuleDescriptor> path)
-        {
-            return new ModuleGraph(inner, inputs, outputs, null, path.ToImmutableList());
-        }
+            ILookup<Type, IModuleDescriptor> inputs, ILookup<Type, IModuleDescriptor> outputs, IEnumerable<IModuleDescriptor> path) => 
+            new ModuleGraph(inner, inputs, outputs, null, path.ToImmutableList());
     }
 }

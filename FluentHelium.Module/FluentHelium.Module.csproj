@@ -43,7 +43,7 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DependencyProvider.cs" />
+    <Compile Include="Internal\DependencyProvider.cs" />
     <Compile Include="DependencyProviderExtensions.cs" />
     <Compile Include="ExternalDependencyBuilder.cs" />
     <Compile Include="IDependencyProvider.cs" />
@@ -56,20 +56,25 @@
     <Compile Include="IModuleGraph.cs" />
     <Compile Include="IModuleInputDependency.cs" />
     <Compile Include="KeyValueExtensions.cs" />
-    <Compile Include="Module.cs" />
-    <Compile Include="ModuleController.cs" />
-    <Compile Include="ModuleDependencies.cs" />
-    <Compile Include="ModuleDescriptor.cs" />
+    <Compile Include="Internal\Module.cs" />
+    <Compile Include="Internal\ModuleController.cs" />
+    <Compile Include="Internal\ModuleDependencies.cs" />
+    <Compile Include="Internal\ModuleDescriptor.cs" />
     <Compile Include="ModuleExtensions.cs" />
-    <Compile Include="ModuleGraph.cs" />
-    <Compile Include="ModuleInputDependency.cs" />
+    <Compile Include="Internal\ModuleGraph.cs" />
+    <Compile Include="Internal\ModuleInputDependency.cs" />
     <Compile Include="ModuleLink.cs" />
     <Compile Include="ModuleOutputDependency.cs" />
+    <Compile Include="Internal\MultipleDependencyBuilder.cs" />
+    <Compile Include="Option.cs" />
+    <Compile Include="Internal\OptionalDependencyBuilder.cs" />
+    <Compile Include="OptionExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SimpleDependencyBuilder.cs" />
+    <Compile Include="Internal\SimpleDependencyBuilder.cs" />
     <Compile Include="Usable.cs" />
     <Compile Include="UsableExtensions.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

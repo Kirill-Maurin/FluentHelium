@@ -70,12 +70,49 @@ namespace FluentHelium.Module.Tests
             When(_ => _.
                 Select(m => m.Descriptor).
                 ToModuleGraphSimple().
-                ToModule((t, i) => t == typeof (double) ? i.First() : null, "C", Guid.Empty, _.ToImmutableDictionary(m => m.Descriptor)).
-                Descriptor).
+                ToSuperModule((t, i) => t == typeof (double) ? i.First() : null, "C", Guid.Empty, _.ToImmutableDictionary(m => m.Descriptor)).Descriptor).
             Then(_ => _.Input.Count.Should().Be(1)).
                 And(_ => _.Input.First().Should().Be(typeof(object))).
                 And(_ => _.Output.Count.Should().Be(1)).
                 And(_ => _.Output.First().Should().Be(typeof(double)));
+        }
+
+        [Fact]
+        public void OptionDependencySuccessTest()
+        {
+            Given(() =>
+            {
+                var a = typeof(object).ToFakeModuleDescriptor("A", typeof(int)).ToModule(d => d.ToUsable());
+                var b = typeof(int?).ToFakeModuleDescriptor("B", typeof(double)).ToModule(d => d.ToUsable());
+                return new[] {a, b};
+            }).
+            When(_ => _.
+                Select(m => m.Descriptor).
+                ToModuleGraph(DependencyBuilder().Optional().Simple().ElseExternal())).
+            Then(_ => _.Input.Count.Should().Be(1)).
+                And(_ => _.Input.First().Key.Should().Be(typeof(object))).
+                And(_ => _.Input.First().Count().Should().Be(1)).
+                And(_ => _.Output.First().Key.Should().Be(typeof(int))).
+                And(_ => _.Output.Count.Should().Be(2));
+        }
+
+        [Fact]
+        public void OptionDependencyFailTest()
+        {
+            Given(() =>
+            {
+                var a = typeof(Option<object>).ToFakeModuleDescriptor("A", typeof(int)).ToModule(d => d.ToUsable());
+                var b = typeof(int).ToFakeModuleDescriptor("B", typeof(double)).ToModule(d => d.ToUsable());
+                return new[] { a, b };
+            }).
+            When(_ => _.
+                Select(m => m.Descriptor).
+                ToModuleGraph(DependencyBuilder().Optional().Simple().ElseExternal())).
+            Then(_ => _.Input.Count.Should().Be(1)).
+                And(_ => _.Input.First().Key.Should().Be(typeof(Option<object>))).
+                And(_ => _.Input.First().Count().Should().Be(1)).
+                And(_ => _.Output.First().Key.Should().Be(typeof(int))).
+                And(_ => _.Output.Count.Should().Be(2));
         }
 
         [Fact]
