@@ -4,6 +4,7 @@ using System.Linq;
 using FluentAssertions;
 using Xunit;
 using static FluentHelium.Bdd.GivenWhenThenExtensions;
+using static FluentHelium.Module.ModuleDependencyExtensions;
 using static FluentHelium.Module.ModuleExtensions;
 
 namespace FluentHelium.Module.Tests
@@ -15,7 +16,7 @@ namespace FluentHelium.Module.Tests
         {
             Given(() =>
             {
-                var a = typeof(object).ToFakeModuleDescriptor("A", typeof (int));
+                var a = typeof(object).ToModuleDescriptor("A", typeof (int));
                 return new[] {a};
             }).
             When(_ => _.ToModuleGraph(DependencyBuilder().Simple().ElseExternal())).
@@ -31,8 +32,8 @@ namespace FluentHelium.Module.Tests
         {
             Given(() =>
             {
-                var a = typeof(object).ToFakeModuleDescriptor("A");
-                var b = typeof(object).ToFakeProducerModuleDescriptor("B");
+                var a = typeof(object).ToModuleDescriptor("A");
+                var b = typeof(object).ToProducerModuleDescriptor("B");
                 return new[] { a, b };
             }).
             When(_ => _.ToModuleGraphSimple()).
@@ -48,8 +49,8 @@ namespace FluentHelium.Module.Tests
         {
             Given(() =>
             {
-                var a = typeof (object).ToFakeModuleDescriptor("A", typeof (int));
-                var b = typeof (int).ToFakeModuleDescriptor("B", typeof (object));
+                var a = typeof (object).ToModuleDescriptor("A", typeof (int));
+                var b = typeof (int).ToModuleDescriptor("B", typeof (object));
                 return new[] { a, b };
             }).
             When(_ => _.ToModuleGraphSimple()).
@@ -63,8 +64,8 @@ namespace FluentHelium.Module.Tests
         {
             Given(() =>
             {
-                var a = typeof (object).ToFakeModuleDescriptor("A", typeof (int)).ToModule(d => d.ToUsable());
-                var b = typeof (int).ToFakeModuleDescriptor("B", typeof (double)).ToModule(d => d.ToUsable());
+                var a = typeof (object).ToModuleDescriptor("A", typeof (int)).ToModule(d => d.ToUsable());
+                var b = typeof (int).ToModuleDescriptor("B", typeof (double)).ToModule(d => d.ToUsable());
                 return new[] {a, b};
             }).
             When(_ => _.
@@ -82,8 +83,8 @@ namespace FluentHelium.Module.Tests
         {
             Given(() =>
             {
-                var a = typeof(object).ToFakeModuleDescriptor("A", typeof(int)).ToModule(d => d.ToUsable());
-                var b = typeof(int?).ToFakeModuleDescriptor("B", typeof(double)).ToModule(d => d.ToUsable());
+                var a = typeof(object).ToModuleDescriptor("A", typeof(int)).ToModule(d => d.ToUsable());
+                var b = typeof(int?).ToModuleDescriptor("B", typeof(double)).ToModule(d => d.ToUsable());
                 return new[] {a, b};
             }).
             When(_ => _.
@@ -97,12 +98,51 @@ namespace FluentHelium.Module.Tests
         }
 
         [Fact]
+        public void OptionDependencyValueSuccessResolveTest()
+        {
+            Given(() =>
+            {
+                var a = CreateSimpleModule<int>("A", () => 42);
+                var b = CreateSimpleModule<int?, double>("B", i => i ?? 24);
+                return new[] {a, b};
+            }).
+            When(_ => _.
+                Select(m => m.Descriptor).
+                ToModuleGraph(DependencyBuilder().Optional().Simple().ElseExternal()).
+                ToModuleController(
+                    _.ToImmutableDictionary(m => m.Descriptor),
+                    DependencyProviderExtensions.Empty).
+                GetProvider(_[1].Descriptor).
+                Unwrap(p => p.Resolve<double>())).
+            Then(_ => _.Do(v => v.Should().Be(42)));
+        }
+
+        [Fact]
+        public void OptionDependencyValueFailResolveTest()
+        {
+            Given(() =>
+            {
+                var b = CreateSimpleModule<int?, double>("B", i => i ?? 24);
+                return new[] { b };
+            }).
+            When(_ => _.
+                Select(m => m.Descriptor).
+                ToModuleGraph(DependencyBuilder().Optional().Simple().ElseExternal()).
+                ToModuleController(
+                    _.ToImmutableDictionary(m => m.Descriptor),
+                    ((int?)null).ToDependencyProvider()).
+                GetProvider(_[0].Descriptor).
+                Unwrap(p => p.Resolve<double>())).
+            Then(_ => _.Do(v => v.Should().Be(24)));
+        }
+
+        [Fact]
         public void OptionDependencyFailTest()
         {
             Given(() =>
             {
-                var a = typeof(Option<object>).ToFakeModuleDescriptor("A", typeof(int)).ToModule(d => d.ToUsable());
-                var b = typeof(int).ToFakeModuleDescriptor("B", typeof(double)).ToModule(d => d.ToUsable());
+                var a = typeof(Option<object>).ToModuleDescriptor("A", typeof(int)).ToModule(d => d.ToUsable());
+                var b = typeof(int).ToModuleDescriptor("B", typeof(double)).ToModule(d => d.ToUsable());
                 return new[] { a, b };
             }).
             When(_ => _.
@@ -120,8 +160,8 @@ namespace FluentHelium.Module.Tests
         {
             Given(() =>
             {
-                var a = typeof (object).ToFakeModuleDescriptor("A", typeof (int));
-                var b = typeof (int).ToFakeModuleDescriptor("B", typeof (double));
+                var a = typeof (object).ToModuleDescriptor("A", typeof (int));
+                var b = typeof (int).ToModuleDescriptor("B", typeof (double));
                 return new[] {a, b};
             }).
             When(_ => _.ToModuleGraphSimple().ToPlantUml()).
@@ -133,8 +173,8 @@ namespace FluentHelium.Module.Tests
         {
             Given(() => new []
             {
-                typeof (object).ToFakeModuleDescriptor("A", typeof (int)),
-                typeof (int).ToFakeModuleDescriptor("B", typeof (double)),
+                typeof (object).ToModuleDescriptor("A", typeof (int)),
+                typeof (int).ToModuleDescriptor("B", typeof (double)),
             }).
                 And(_ =>
                 {
@@ -152,8 +192,8 @@ namespace FluentHelium.Module.Tests
         {
             Given(() => new[]
             {
-                typeof (object).ToFakeModuleDescriptor("A", typeof (int)),
-                typeof (int).ToFakeModuleDescriptor("B", typeof (double)),
+                typeof (object).ToModuleDescriptor("A", typeof (int)),
+                typeof (int).ToModuleDescriptor("B", typeof (double)),
             }).
                 And(_ =>
                 {

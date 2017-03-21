@@ -9,7 +9,7 @@ namespace FluentHelium.Module
     /// Usable can be use before Dispose call
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public sealed class Usable<T> : IDisposable where T: class
+    public sealed class Usable<T> : IDisposable 
     {
         internal Usable(T resource, IDisposable usageTime) : this(resource, usageTime.Dispose) {}
 
@@ -21,18 +21,18 @@ namespace FluentHelium.Module
 
         public void Dispose()
         {
-            if (Value == null)
+            if (_dispose == null)
                 throw new ObjectDisposedException("");
             _dispose();
             _dispose = null;
-            _value = null;
+            _value = default(T);
         }
 
         internal T Value
         {
             get
             {
-                if (_value == null)
+                if (_dispose == null)
                     throw new ObjectDisposedException("");
                 return _value;
             }

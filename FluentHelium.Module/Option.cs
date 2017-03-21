@@ -4,7 +4,7 @@ namespace FluentHelium.Module
     /// Nullable reference (by design)
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public sealed class Option<T> where T: class
+    public struct Option<T> where T: class
     {
         internal Option(T value)
         {

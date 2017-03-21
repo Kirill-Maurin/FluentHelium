@@ -1,75 +1,18 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using static FluentHelium.Module.ModuleDependencyExtensions;
 
 namespace FluentHelium.Module
 {
-    public static class ModuleExtensions
-    { 
-        public static readonly Guid External = new Guid("{6671930C-FC8F-4148-A596-097D94285279}");
-        public static bool IsExternal(this IModuleDescriptor descriptor) => descriptor.Id == External;
-        public static IModuleDescriptor ExternalModule { get; } = new ModuleDescriptor("External", External, null, null);
-        public static ExternalDependencyBuilder ExternalDependencyBuilder { get; } = new ExternalDependencyBuilder();
-
-        public static IModuleDependencyBuilder ElseExternal(
-            this Func<IModuleDependencyBuilder, IModuleDependencyBuilder> linkFallback) =>
-            linkFallback(ExternalDependencyBuilder);
-
-        public static Func<IModuleDependencyBuilder, IModuleDependencyBuilder> DependencyBuilder() => b => b;
-        public static Func<IModuleDependencyBuilder, IModuleDependencyBuilder> Simple(this Func<IModuleDependencyBuilder, IModuleDependencyBuilder> linkFallback) =>
-            b => linkFallback(new SimpleDependencyBuilder(b));
-        public static Func<IModuleDependencyBuilder, IModuleDependencyBuilder> Optional(
-            this Func<IModuleDependencyBuilder, IModuleDependencyBuilder> linkFallback) =>
-            b => linkFallback(new OptionalDependencyBuilder(b));
-        public static Func<IModuleDependencyBuilder, IModuleDependencyBuilder> Multiple(this Func<IModuleDependencyBuilder, IModuleDependencyBuilder> linkFallback) =>
-            b => new MultipleDependencyBuilder(b);
-
-        public enum Color { White, Gray, Black }
-
-        public static ModuleOutputDependency ToModuleOutputDependency(
-            this Type @interface, IModuleDescriptor descriptor) =>
-            new ModuleOutputDependency(descriptor, @interface);
-
-        public static IModuleInputDependency ToModuleInputDependency(
-            this IEnumerable<ModuleOutputDependency> dependencies,
-            IModuleDescriptor client,
-            Type @interface, 
-            Func<Func<IModuleDescriptor, IDependencyProvider>, Usable<object>> resolver) =>
-            new ModuleInputDependency(@interface, dependencies, resolver, client);
-
-        public static IModuleInputDependency ToModuleInputDependency(
-            this Type @interface,
-            IModuleDescriptor client,
-            Func<Usable<object>> resolver) =>
-            new ModuleInputDependency(@interface, Enumerable.Empty<ModuleOutputDependency>(), provider => resolver(), client);
-
-        public static IModuleInputDependency ToModuleInputDependency(
-            this ModuleOutputDependency source,
-            IModuleDescriptor client,
-            Type @interface,
-            Func<Func<IModuleDescriptor, IDependencyProvider>, Usable<object>> resolver) =>
-            new ModuleInputDependency(@interface, new [] {source}, resolver, client);
-
-        public static IModuleInputDependency ToModuleInputDependency(
-            this IModuleDescriptor source,
-            IModuleDescriptor client,
-            Type @interface,
-            Func<Func<IModuleDescriptor, IDependencyProvider>, Usable<object>> resolver) =>
-            new ModuleInputDependency(@interface, new[] { @interface.ToModuleOutputDependency(source) }, resolver, client);
-
-        public static IModuleInputDependency ToModuleInputDependency(
-            this IModuleDescriptor source,
-            IModuleDescriptor client,
-            Type @interface,
-            Func<IModuleDescriptor, Func<IModuleDescriptor, IDependencyProvider>, Usable<object>> resolver) =>
-            new ModuleInputDependency(@interface, new[] { @interface.ToModuleOutputDependency(source) }, r => resolver(source, r), client);
-
+    public static class ModuleGraphExtensions
+    {
         public static void WritePlantUml(
-            this IImmutableDictionary<IModuleDescriptor, IModuleDependencies> dependencies, 
-            TextWriter writer,
-            Func<IEnumerable<Type>, IModuleDescriptor, IModuleDescriptor, IEnumerable<Type>> filter)
+                    this IImmutableDictionary<IModuleDescriptor, IModuleDependencies> dependencies,
+                    TextWriter writer,
+                    Func<IEnumerable<Type>, IModuleDescriptor, IModuleDescriptor, IEnumerable<Type>> filter)
         {
             foreach (var line in dependencies.SelectMany(
                 p => p.Value.SelectMany(i => i.Output.
@@ -81,8 +24,8 @@ namespace FluentHelium.Module
                 writer.WriteLine(line);
             }
         }
-   
-        private static string ToPlantUml(IModuleDescriptor client, IModuleDescriptor implementation, Type @type) => 
+
+        private static string ToPlantUml(IModuleDescriptor client, IModuleDescriptor implementation, Type @type) =>
             $"[{client.Name}] ..> [{implementation.Name}] : {@type.Name}";
 
         public static string ToPlantUml(this IModuleGraph graph)
@@ -93,23 +36,6 @@ namespace FluentHelium.Module
                 return writer.ToString();
             }
         }
-
-        public static IModuleDescriptor ToModuleDescriptor(
-            this IEnumerable<Type> input, string name, Guid id, params Type[] output) => 
-                new ModuleDescriptor(name, id, input.ToImmutableHashSet(), output.ToImmutableHashSet());
-
-        public static IModuleDescriptor ToModuleDescriptor(
-            this Type input, string name, Guid id, params Type[] output) =>
-                new ModuleDescriptor(name, id, new [] { input }.ToImmutableHashSet(), output.ToImmutableHashSet());
-
-        public static IModuleDescriptor ToModuleDescriptor(
-            this IEnumerable<Type> input, string name, Guid id, IEnumerable<Type> output) =>
-                new ModuleDescriptor(name, id, input.ToImmutableHashSet(), output.ToImmutableHashSet());
-
-        public static IModule ToModule(
-            this IModuleDescriptor descriptor,
-            Func<IDependencyProvider, Usable<IDependencyProvider>> activator) =>
-                new Module(descriptor, activator);
 
         public static IModule ToSuperModule(this IModuleGraph graph,
             Func<Type, IEnumerable<IModuleDescriptor>, IModuleDescriptor> tryChoiceOutput, string name, Guid id, IImmutableDictionary<IModuleDescriptor, IModule> modules)
@@ -128,7 +54,7 @@ namespace FluentHelium.Module
 
         public static IDependencyProvider ToDependencyProvider(
             this IReadOnlyDictionary<IModuleDescriptor, IDependencyProvider> providers,
-            ILookup<IModuleDescriptor, Type> selector) => 
+            ILookup<IModuleDescriptor, Type> selector) =>
                 providers.Select(p => p.Value.Restrict(selector[p.Key])).Aggregate((l, r) => l.Union(r));
 
         public static Usable<IReadOnlyDictionary<IModuleDescriptor, IDependencyProvider>> Activate(
@@ -149,14 +75,14 @@ namespace FluentHelium.Module
                 providers[module] = result.Value;
             }
 
-            return ((IReadOnlyDictionary<IModuleDescriptor, IDependencyProvider>) providers).ToUsable(() =>
+            return ((IReadOnlyDictionary<IModuleDescriptor, IDependencyProvider>)providers).ToUsable(() =>
             {
                 while (activated.Count > 0)
                 {
                     activated.Pop().Dispose();
                 }
             });
-        } 
+        }
 
         public static IModuleController ToModuleController(
             this IModuleGraph graph, IImmutableDictionary<IModuleDescriptor, IModule> modules, IDependencyProvider input) =>
@@ -166,7 +92,7 @@ namespace FluentHelium.Module
             modules.ToModuleGraph(DependencyBuilder().Simple().ElseExternal());
 
         public static IModuleGraph ToModuleGraph(
-            this IEnumerable<IModuleDescriptor> modules, 
+            this IEnumerable<IModuleDescriptor> modules,
             IModuleDependencyBuilder builder)
         {
             var moduleList = modules.ToImmutableList();
@@ -193,10 +119,12 @@ namespace FluentHelium.Module
                 : CreateModuleGraphWithCycle(inner, inputs, outputs, order);
         }
 
+        public enum Color { White, Gray, Black }
+
         public static bool TryTopologySort<T>(
             IEnumerable<T> modules,
             Func<T, IEnumerable<T>> getLinks,
-            out IEnumerable<T> order) where T: class
+            out IEnumerable<T> order) where T : class
         {
             var moduleList = modules.ToImmutableList();
             var path = new Stack<T>();
@@ -235,14 +163,14 @@ namespace FluentHelium.Module
 
         private static IModuleGraph CreateSortedModuleGraph(
             IEnumerable<IModuleDescriptor> result,
-            IImmutableDictionary<IModuleDescriptor, IModuleDependencies> inner, 
-            ILookup<Type, IModuleDescriptor> inputs, 
-            ILookup<Type, IModuleDescriptor> outputs) => 
+            IImmutableDictionary<IModuleDescriptor, IModuleDependencies> inner,
+            ILookup<Type, IModuleDescriptor> inputs,
+            ILookup<Type, IModuleDescriptor> outputs) =>
             new ModuleGraph(inner, inputs, outputs, result.ToImmutableList(), null);
 
         private static IModuleGraph CreateModuleGraphWithCycle(
-            IImmutableDictionary<IModuleDescriptor, IModuleDependencies> inner, 
-            ILookup<Type, IModuleDescriptor> inputs, ILookup<Type, IModuleDescriptor> outputs, IEnumerable<IModuleDescriptor> path) => 
+            IImmutableDictionary<IModuleDescriptor, IModuleDependencies> inner,
+            ILookup<Type, IModuleDescriptor> inputs, ILookup<Type, IModuleDescriptor> outputs, IEnumerable<IModuleDescriptor> path) =>
             new ModuleGraph(inner, inputs, outputs, null, path.ToImmutableList());
     }
 }

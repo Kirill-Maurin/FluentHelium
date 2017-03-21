@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reactive.Disposables;
 
 namespace FluentHelium.Module
 {
     public static class DependencyProviderExtensions
     {
-        public static Usable<T> Resolve<T>(this IDependencyProvider provider) where T: class =>
+        public static Usable<T> Resolve<T>(this IDependencyProvider provider) =>
             provider.Resolve(typeof (T)).Select(o => (T)o);
 
         public static IDependencyProvider Empty =
@@ -46,5 +47,8 @@ namespace FluentHelium.Module
 
         public static IDependencyProvider ToDependencyProvider(this Type @type, Func<Type, Usable<object>> resolver) =>
             new[] { @type }.ToDependencyProvider(resolver);
+
+        public static IDependencyProvider ToDependencyProvider<T>(this T value) =>
+            typeof(T).ToDependencyProvider(t => value.ToUsable().Select(v => (object)v));
     }
 }
