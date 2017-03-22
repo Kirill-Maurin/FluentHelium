@@ -137,6 +137,45 @@ namespace FluentHelium.Module.Tests
         }
 
         [Fact]
+        public void OptionDependencyRefSuccessResolveTest()
+        {
+            Given(() =>
+            {
+                var a = CreateSimpleModule<object>("A", () => 42);
+                var b = CreateSimpleModule<Option<object>, double>("B", i => (int)i.GetValueOrDefault(24));
+                return new[] { a, b };
+            }).
+            When(_ => _.
+                Select(m => m.Descriptor).
+                ToModuleGraph(DependencyBuilder().Optional().Simple().ElseExternal()).
+                ToModuleController(
+                    _.ToImmutableDictionary(m => m.Descriptor),
+                    DependencyProviderExtensions.Empty).
+                GetProvider(_[1].Descriptor).
+                Unwrap(p => p.Resolve<double>())).
+            Then(_ => _.Do(v => v.Should().Be(42)));
+        }
+
+        [Fact]
+        public void OptionDependencyRefFailResolveTest()
+        {
+            Given(() =>
+            {
+                var b = CreateSimpleModule<Option<object>, double>("B", i => (int)i.GetValueOrDefault(24));
+                return new[] { b };
+            }).
+            When(_ => _.
+                Select(m => m.Descriptor).
+                ToModuleGraph(DependencyBuilder().Optional().Simple().ElseExternal()).
+                ToModuleController(
+                    _.ToImmutableDictionary(m => m.Descriptor),
+                    ((object)null).ToOption().ToDependencyProvider()).
+                GetProvider(_[0].Descriptor).
+                Unwrap(p => p.Resolve<double>())).
+            Then(_ => _.Do(v => v.Should().Be(24)));
+        }
+
+        [Fact]
         public void OptionDependencyFailTest()
         {
             Given(() =>

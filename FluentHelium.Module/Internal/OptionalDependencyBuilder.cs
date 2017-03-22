@@ -31,15 +31,15 @@ namespace FluentHelium.Module
                     client,
                     @interface,
                     provider => provider(implementation).Resolve(parameter).Select(
-                        o => CreateOption(o, parameter.IsByRef ? nameof(OptionExtensions.ToOption) : nameof(OptionExtensions.ToNullable))));
+                        o => CreateOption(o, parameter, parameter.GetTypeInfo().IsClass ? nameof(OptionExtensions.ToOption) : nameof(OptionExtensions.ToNullable))));
         }
 
-        private object CreateOption(object o, string methodName) =>
+        private object CreateOption(object o, Type t, string methodName) =>
             typeof(OptionExtensions).
                 GetTypeInfo().
                 GetDeclaredMethods(methodName).
                 First(m => m.IsGenericMethod).
-                MakeGenericMethod(o.GetType()).
+                MakeGenericMethod(t).
                 Invoke(null, new[] {o});
 
         private readonly IModuleDependencyBuilder _fallback;
