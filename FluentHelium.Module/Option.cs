@@ -1,20 +1,23 @@
 namespace FluentHelium.Module
 {
     /// <summary>
-    /// Nullable reference (by design)
+    /// Safe nullable (by design)
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public struct Option<T> where T: class
+    public struct Option<T> 
     {
         internal Option(T value)
         {
-            _value = value;
+            Value = value;
+            HasValue = true;
         }
 
-        public static Option<T> NoValue { get; } = new Option<T>(null);
+        public static Option<T> Nothing { get; } = new Option<T>();
 
-        public T GetValueOrDefault() => _value;
+        public T GetValue(T fallback) => HasValue ? Value : fallback;
 
-        private readonly T _value;
+        public bool HasValue { get; }
+
+        internal T Value { get; }
     }
 }

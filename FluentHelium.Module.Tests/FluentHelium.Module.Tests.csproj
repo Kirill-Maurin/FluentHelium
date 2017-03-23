@@ -40,6 +40,7 @@
   <ItemGroup>
     <Compile Include="ModuleGraphTests.cs" />
     <Compile Include="ModuleTestExtensions.cs" />
+    <Compile Include="OptionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UsableTests.cs" />
   </ItemGroup>

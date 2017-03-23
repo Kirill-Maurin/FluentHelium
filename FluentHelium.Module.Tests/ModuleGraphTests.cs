@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using FluentAssertions;
@@ -41,7 +42,7 @@ namespace FluentHelium.Module.Tests
                 And(_ => _.Output.First().Key.Should().Be(typeof(object))).
                 And(_ => _.Output.First().Count().Should().Be(1)).
                 And(_ => _.Order.Count.Should().Be(2)).
-                And(_ => _.Order.Select(m => m.Name).Should().Equal(new []{"B", "A"}));
+                And(_ => _.Order.Select(m => m.Name).Should().Equal("B", "A"));
         }
 
         [Fact]
@@ -98,11 +99,32 @@ namespace FluentHelium.Module.Tests
         }
 
         [Fact]
+        public void MultipleDependencySuccessResolveTest()
+        {
+            Given(() =>
+            {
+                var a = CreateSimpleModule("A", () => 42);
+                var b = CreateSimpleModule<IEnumerable<int>, double>("B", items => (double)items.Sum());
+                var c = CreateSimpleModule<IEnumerable<int>>("C", () => new [] { 21, 84 });
+                return new[] { a, b, c };
+            }).
+            When(_ => _.
+                Select(m => m.Descriptor).
+                ToModuleGraph(DependencyBuilder().Optional().Multiple().Simple().ElseExternal()).
+                ToModuleController(
+                    _.ToImmutableDictionary(m => m.Descriptor),
+                    DependencyProviderExtensions.Empty).
+                GetProvider(_[1].Descriptor).
+                Unwrap(p => p.Resolve<double>())).
+            Then(_ => _.Do(v => v.Should().Be(147)));
+        }
+
+        [Fact]
         public void OptionDependencyValueSuccessResolveTest()
         {
             Given(() =>
             {
-                var a = CreateSimpleModule<int>("A", () => 42);
+                var a = CreateSimpleModule("A", () => 42);
                 var b = CreateSimpleModule<int?, double>("B", i => i ?? 24);
                 return new[] {a, b};
             }).
@@ -142,7 +164,7 @@ namespace FluentHelium.Module.Tests
             Given(() =>
             {
                 var a = CreateSimpleModule<object>("A", () => 42);
-                var b = CreateSimpleModule<Option<object>, double>("B", i => (int)i.GetValueOrDefault(24));
+                var b = CreateSimpleModule<Option<object>, double>("B", i => (int)i.GetValue(24));
                 return new[] { a, b };
             }).
             When(_ => _.
@@ -161,7 +183,7 @@ namespace FluentHelium.Module.Tests
         {
             Given(() =>
             {
-                var b = CreateSimpleModule<Option<object>, double>("B", i => (int)i.GetValueOrDefault(24));
+                var b = CreateSimpleModule<Option<object>, double>("B", i => (int)i.GetValue(24));
                 return new[] { b };
             }).
             When(_ => _.
