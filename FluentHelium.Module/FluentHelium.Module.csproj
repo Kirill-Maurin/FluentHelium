@@ -1,89 +1,15 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B5203899-143B-4D8F-A5BE-39091852CAB2}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FluentHelium.Module</RootNamespace>
-    <AssemblyName>FluentHelium.Module</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
-    <SccProjectName>&lt;Project Location In Database&gt;</SccProjectName>
-    <SccLocalPath>&lt;Local Binding Root of Project&gt;</SccLocalPath>
-    <SccAuxPath>&lt;Source Control Database&gt;</SccAuxPath>
-    <SccProvider>Mercurial Source Control Package</SccProvider>
+    <TargetFramework>netstandard1.1</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <!-- A reference to the entire .NET Framework is automatically included -->
-    <None Include="project.json" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.3.1" />
+    <PackageReference Include="System.Reactive" Version="3.1.1" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Internal\DependencyProvider.cs" />
-    <Compile Include="Extensions\DependencyProviderExtensions.cs" />
-    <Compile Include="Internal\ExternalDependencyBuilder.cs" />
-    <Compile Include="IDependencyProvider.cs" />
-    <Compile Include="Extensions\ImmutableDictionaryExtensions.cs" />
-    <Compile Include="IModule.cs" />
-    <Compile Include="IModuleController.cs" />
-    <Compile Include="IModuleDependencies.cs" />
-    <Compile Include="IModuleDependencyBuilder.cs" />
-    <Compile Include="IModuleDescriptor.cs" />
-    <Compile Include="IModuleGraph.cs" />
-    <Compile Include="IModuleInputDependency.cs" />
-    <Compile Include="Extensions\ModuleDependencyExtensions.cs" />
-    <Compile Include="Extensions\KeyValueExtensions.cs" />
-    <Compile Include="Internal\Module.cs" />
-    <Compile Include="Internal\ModuleController.cs" />
-    <Compile Include="Internal\ModuleDependencies.cs" />
-    <Compile Include="Internal\ModuleDescriptor.cs" />
-    <Compile Include="Extensions\ModuleDescriptorExtensions.cs" />
-    <Compile Include="Extensions\ModuleExtensions.cs" />
-    <Compile Include="Internal\ModuleGraph.cs" />
-    <Compile Include="Internal\ModuleInputDependency.cs" />
-    <Compile Include="Extensions\ModuleGraphExtensions.cs" />
-    <Compile Include="ModuleLink.cs" />
-    <Compile Include="ModuleOutputDependency.cs" />
-    <Compile Include="Internal\MultipleDependencyBuilder.cs" />
-    <Compile Include="Option.cs" />
-    <Compile Include="Internal\OptionalDependencyBuilder.cs" />
-    <Compile Include="Extensions\OptionExtensions.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Internal\SimpleDependencyBuilder.cs" />
-    <Compile Include="Usable.cs" />
-    <Compile Include="Extensions\UsableExtensions.cs" />
+    <PackageReference Update="NETStandard.Library" Version="1.6.1" />
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
