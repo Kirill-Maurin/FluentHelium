@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FluentHelium.Module
 {
@@ -42,5 +40,10 @@ namespace FluentHelium.Module
         public static IModuleDescriptor ToModuleDescriptor(
             this IEnumerable<Type> input, string name, Guid id, IEnumerable<Type> output) =>
                 new ModuleDescriptor(name, id, input.ToImmutableHashSet(), output.ToImmutableHashSet());
+
+        public static string ToString(this IModuleDescriptor descriptor) =>
+            $"{descriptor.Name}({descriptor.Id}) {descriptor.Input.Count}/{descriptor.Output.Count}" +
+            (descriptor.Input.Count == 0 ? string.Empty : $"\n Input {{{string.Join("; ", descriptor.Input.Select(t => t.Name))}}}") +
+            (descriptor.Output.Count == 0? String.Empty : $"\n Output {{{string.Join("; ", descriptor.Output.Select(t => t.Name))}}}");
     }
 }

@@ -38,6 +38,8 @@ namespace FluentHelium.Module
             }
         }
 
+        public override string ToString() => _dispose != null ? $"Usable{{{_value}}}" : $"Disposed<{nameof(T)}>";
+
         private Action _dispose;
         private T _value;
     }

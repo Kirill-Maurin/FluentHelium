@@ -50,5 +50,8 @@ namespace FluentHelium.Module
 
         public static IDependencyProvider ToDependencyProvider<T>(this T value) =>
             typeof(T).ToDependencyProvider(t => value.ToUsable().Select(v => (object)v));
+
+        public static string ToString(this IDependencyProvider provider) =>
+            $"DependencyProvider({provider.Dependencies.Count}){{{string.Join("; ", provider.Dependencies.Select(t => t.Name))}}}";
     }
 }

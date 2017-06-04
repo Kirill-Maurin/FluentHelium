@@ -19,5 +19,7 @@ namespace FluentHelium.Module
         public bool HasValue { get; }
 
         internal T Value { get; }
+
+        public override string ToString() => HasValue ? $"Option{{{Value}}}" : $"Nothing<{nameof(T)}>";
     }
 }

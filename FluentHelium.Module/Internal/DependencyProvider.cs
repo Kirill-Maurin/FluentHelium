@@ -15,6 +15,8 @@ namespace FluentHelium.Module
 
         public IImmutableSet<Type> Dependencies { get; }
 
+        public override string ToString() => DependencyProviderExtensions.ToString(this);
+
         private readonly Func<Type, Usable<object>> _resolver;
     }
 }

@@ -18,5 +18,7 @@ namespace FluentHelium.Module
         /// <param name="dependencies">Provider of all input depedencies</param>
         /// <returns>Provider of all output dependencies, use Dispose for module finalization (thread-unsafe)</returns>
         Usable<IDependencyProvider> Activate(IDependencyProvider dependencies);
+
+        bool Active { get; }
     }
 }

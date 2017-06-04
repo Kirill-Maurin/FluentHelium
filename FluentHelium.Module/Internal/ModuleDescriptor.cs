@@ -17,5 +17,7 @@ namespace FluentHelium.Module
         public Guid Id { get; }
         public IImmutableSet<Type> Input { get; }
         public IImmutableSet<Type> Output { get; }
+
+        public override string ToString() => ModuleDescriptorExtensions.ToString(this);
     }
 }

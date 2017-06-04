@@ -24,6 +24,12 @@ namespace FluentHelium.Module
             dispose();
         });
 
+        public static Usable<T> WrapUsable<T>(this Usable<T> resource, Action<T> init, Action<T> dispose)
+        {
+            resource.Do(init);
+            return resource.ToUsable(() => resource.Do(dispose));
+        }
+
         public static Usable<T> ToSelfUsable<T>(this T resource) where T: IDisposable => resource.ToUsable(resource);
 
         public static Usable<T> ToUsable<T>(this T resource)  => resource.ToUsable(DoNothing);
