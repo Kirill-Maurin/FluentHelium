@@ -13,6 +13,12 @@ namespace FluentHelium.Module.Tests
         }
 
         [Fact]
+        public void GivenReferenceNotNull_WhenToOption_ThenHasValue()
+        {
+            Given(new object()).When(_ => _.ToOption()).Then(_ => _.HasValue.Should().BeTrue());
+        }
+
+        [Fact]
         public void GivenValueNull_WhenToOption_ThenHasNoValue()
         {
             Given((int?)null).When(_ => _.ToOption()).Then(_ => _.HasValue.Should().BeFalse());
@@ -21,7 +27,7 @@ namespace FluentHelium.Module.Tests
         [Fact]
         public void GivenValueNotNull_WhenToOption_ThenHasValue()
         {
-            Given(0).When(_ => _.ToNullable().ToOption()).Then(_ => _.HasValue.Should().BeTrue());
+            Given((int?)0).When(_ => _.ToOption()).Then(_ => _.HasValue.Should().BeTrue());
         }
     }
 }
