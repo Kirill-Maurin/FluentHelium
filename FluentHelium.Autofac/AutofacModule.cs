@@ -41,6 +41,8 @@ namespace FluentHelium.Autofac
             }
         }
 
+        public override string ToString() => $"Autofac {base.ToString()}";
+
         public bool Active { get; private set; }
     }
 }

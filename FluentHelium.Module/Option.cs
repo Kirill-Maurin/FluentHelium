@@ -1,7 +1,7 @@
 namespace FluentHelium.Module
 {
     /// <summary>
-    /// Safe nullable (by design)
+    /// Safe universal nullable (by design)
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public struct Option<T> 

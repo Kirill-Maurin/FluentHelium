@@ -10,7 +10,7 @@ namespace FluentHelium.Module
     public interface IModuleGraph
     {
         /// <summary>
-        /// Dependencies - client -> (type, dependency)
+        /// Dependencies: client -> (type, dependency)
         /// </summary>
         IImmutableDictionary<IModuleDescriptor, IModuleDependencies> Dependencies { get; }
         /// <summary>

@@ -3,9 +3,9 @@ using System.Collections.Immutable;
 
 namespace FluentHelium.Module
 {
-    internal class DependencyProvider : IDependencyProvider
+    internal sealed class DependencyProviderImpl : IDependencyProvider
     {
-        public DependencyProvider(Func<Type, Usable<object>> resolver, IImmutableSet<Type> dependencies)
+        public DependencyProviderImpl(Func<Type, Usable<object>> resolver, IImmutableSet<Type> dependencies)
         {
             _resolver = resolver;
             Dependencies = dependencies;
@@ -15,7 +15,7 @@ namespace FluentHelium.Module
 
         public IImmutableSet<Type> Dependencies { get; }
 
-        public override string ToString() => DependencyProviderExtensions.ToString(this);
+        public override string ToString() => DependencyProvider.ToString(this);
 
         private readonly Func<Type, Usable<object>> _resolver;
     }

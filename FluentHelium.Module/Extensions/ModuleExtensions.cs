@@ -17,6 +17,6 @@ namespace FluentHelium.Module
             new Module(descriptor, activator);
 
         public static string ToString(this IModule module) =>
-            $"{(module.Active ? "Active" : "Inactive")} {module.Descriptor}";
+            $"{(module.Active ? "Active" : "Inactive")} module {module.Descriptor}";
     }
 }

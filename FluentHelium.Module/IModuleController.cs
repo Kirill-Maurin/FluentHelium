@@ -16,7 +16,7 @@ namespace FluentHelium.Module
         /// <summary>
         /// Get resource provider for module
         /// with lazy activation of module and its dependencies
-        /// Module will be deactivated after its refence count will be 0 
+        /// The module will be deactivated after its reference reaches zero
         /// </summary>
         /// <param name="descriptor"></param>
         /// <returns></returns>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -104,7 +105,7 @@ namespace FluentHelium.Module.Tests
             Given(() =>
             {
                 var a = CreateSimpleModule("A", () => 42);
-                var b = CreateSimpleModule<IEnumerable<int>, double>("B", items => (double)items.Sum());
+                var b = CreateSimpleModule("B", (IEnumerable<int> items) => (double)items.Sum());
                 var c = CreateSimpleModule<IEnumerable<int>>("C", () => new [] { 21, 84 });
                 return new[] { a, b, c };
             }).
@@ -113,7 +114,7 @@ namespace FluentHelium.Module.Tests
                 ToModuleGraph(DependencyBuilder().Optional().Multiple().Simple().ElseExternal()).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
-                    DependencyProviderExtensions.Empty).
+                    DependencyProvider.Empty).
                 GetProvider(_[1].Descriptor).
                 Unwrap(p => p.Resolve<double>())).
             Then(_ => _.Do(v => v.Should().Be(147)));
@@ -133,7 +134,7 @@ namespace FluentHelium.Module.Tests
                 ToModuleGraph(DependencyBuilder().Optional().Simple().ElseExternal()).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
-                    DependencyProviderExtensions.Empty).
+                    DependencyProvider.Empty).
                 GetProvider(_[1].Descriptor).
                 Unwrap(p => p.Resolve<double>())).
             Then(_ => _.Do(v => v.Should().Be(42)));
@@ -172,7 +173,7 @@ namespace FluentHelium.Module.Tests
                 ToModuleGraph(DependencyBuilder().Optional().Simple().ElseExternal()).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
-                    DependencyProviderExtensions.Empty).
+                    DependencyProvider.Empty).
                 GetProvider(_[1].Descriptor).
                 Unwrap(p => p.Resolve<double>())).
             Then(_ => _.Do(v => v.Should().Be(42)));

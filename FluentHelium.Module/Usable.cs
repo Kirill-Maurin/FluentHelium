@@ -21,9 +21,7 @@ namespace FluentHelium.Module
 
         public void Dispose()
         {
-            if (_dispose == null)
-                throw new ObjectDisposedException("");
-            _dispose();
+            (_dispose ?? throw new ObjectDisposedException("")).Invoke();
             _dispose = null;
             _value = default(T);
         }
@@ -38,7 +36,7 @@ namespace FluentHelium.Module
             }
         }
 
-        public override string ToString() => _dispose != null ? $"Usable{{{_value}}}" : $"Disposed<{nameof(T)}>";
+        public override string ToString() => _dispose != null ? $"Usable{{{_value}}}" : $"Disposed<{typeof(T).Name}>";
 
         private Action _dispose;
         private T _value;

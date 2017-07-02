@@ -10,9 +10,9 @@ namespace FluentHelium.Module
     public static class ModuleGraphExtensions
     {
         public static void WritePlantUml(
-                    this IImmutableDictionary<IModuleDescriptor, IModuleDependencies> dependencies,
-                    TextWriter writer,
-                    Func<IEnumerable<Type>, IModuleDescriptor, IModuleDescriptor, IEnumerable<Type>> filter)
+            this IImmutableDictionary<IModuleDescriptor, IModuleDependencies> dependencies,
+            TextWriter writer,
+            Func<IEnumerable<Type>, IModuleDescriptor, IModuleDescriptor, IEnumerable<Type>> filter)
         {
             foreach (var line in dependencies.SelectMany(
                 p => p.Value.SelectMany(i => i.Output.
@@ -110,11 +110,10 @@ namespace FluentHelium.Module
                     Distinct().
                     Select(t => t.LinkValue(p.Key))).
                 ToLookup(p => p.Key, p => p.Value);
-            IEnumerable<IModuleDescriptor> order;
             return TryTopologySort(
                 moduleList,
                 m => inner.GetValueOrDefault(m)?.Links.Select(l => l.Key).Where(i => !i.IsExternal()) ?? Enumerable.Empty<IModuleDescriptor>(),
-                out order)
+                out IEnumerable<IModuleDescriptor> order)
                 ? CreateSortedModuleGraph(order, inner, inputs, outputs)
                 : CreateModuleGraphWithCycle(inner, inputs, outputs, order);
         }
