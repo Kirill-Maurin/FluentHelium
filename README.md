@@ -1,7 +1,7 @@
 # Fluent Helium 
 Microlibrary to design and develop modular applications
 ## Target Platform
-NetStandard 1.1 (.NET Framework 4.5 for unit tests only) 
+NetStandard 1.1 (.NET Core 1.0 for unit tests only) 
 ## Dependencies
 ### Mandatory
 * Immutable Collections
