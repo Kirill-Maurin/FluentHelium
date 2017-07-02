@@ -8,30 +8,32 @@ namespace FluentHelium.Module
         {
             Descriptor = descriptor;
             _activator = activator;
+            _active = false.ToProperty();
         }
 
         public IModuleDescriptor Descriptor { get; }
 
         public Usable<IDependencyProvider> Activate(IDependencyProvider dependencies)
         {
-            if (Active)
+            if (Active.Value)
                 throw new InvalidOperationException($"Module {Descriptor.Name}({Descriptor.Id}) already activated");
             try
             {
-                Active = true;
-                return _activator(dependencies).ToUsable(() => Active = false);
+                _active.OnNext(true);
+                return _activator(dependencies).ToUsable(() => _active.OnNext(false));
             }
             catch
             {
-                Active = false;
+                _active.OnNext(false);
                 throw;
             }
         }
 
-        public bool Active { get; private set; }
+        public IProperty<bool> Active => _active;
 
         public override string ToString() => ModuleExtensions.ToString(this);
 
         private readonly Func<IDependencyProvider, Usable<IDependencyProvider>> _activator;
+        private readonly IMutableProperty<bool> _active;
     }
 }

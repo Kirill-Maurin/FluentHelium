@@ -21,7 +21,7 @@ namespace FluentHelium.Module.Tests
         [Fact]
         public void GivenValueNotNull_WhenToOption_ThenHasValue()
         {
-            Given(0).When(_ => _.ToNullable().ToOption()).Then(_ => _.HasValue.Should().BeFalse());
+            Given(0).When(_ => _.ToNullable().ToOption()).Then(_ => _.HasValue.Should().BeTrue());
         }
     }
 }

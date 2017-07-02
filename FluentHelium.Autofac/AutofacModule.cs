@@ -7,18 +7,17 @@ namespace FluentHelium.Autofac
 {
     internal sealed class AutofacModule : IModule
     {
-        private readonly Action<ContainerBuilder> _registrator;
-
         public AutofacModule(IModuleDescriptor descriptor, Action<ContainerBuilder> registrator)
         {
             _registrator = registrator;
             Descriptor = descriptor;
+            _active = false.ToProperty();
         }
 
         public IModuleDescriptor Descriptor { get; }
         public Usable<IDependencyProvider> Activate(IDependencyProvider dependencies)
         {
-            if (Active)
+            if (Active.Value)
                 throw new InvalidOperationException($"Module {Descriptor.Name}({Descriptor.Id}) already activated");
             var builder = new ContainerBuilder();
             foreach (var dependency in dependencies.Dependencies)
@@ -31,18 +30,21 @@ namespace FluentHelium.Autofac
                 return builder.
                     Build().
                     ToSelfUsable().
-                    WrapUsable(c => Active = true, c => Active = false).
+                    WrapUsable(c => _active.OnNext(true), c => _active.OnNext(false)).
                     Select(c => Descriptor.Output.ToDependencyProvider(t => c.Resolve(t).ToUsable()));
             }
             catch
             {
-                Active = false;
+                _active.OnNext(false);
                 throw;
             }
         }
 
         public override string ToString() => $"Autofac {base.ToString()}";
 
-        public bool Active { get; private set; }
+        public IProperty<bool> Active => _active;
+
+        private readonly Action<ContainerBuilder> _registrator;
+        private readonly IMutableProperty<bool> _active;
     }
 }

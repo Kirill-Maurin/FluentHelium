@@ -19,6 +19,6 @@ namespace FluentHelium.Module
         /// <returns>Provider of all output dependencies, use Dispose for module finalization (thread-unsafe)</returns>
         Usable<IDependencyProvider> Activate(IDependencyProvider dependencies);
 
-        bool Active { get; }
+        IProperty<bool> Active { get; }
     }
 }
