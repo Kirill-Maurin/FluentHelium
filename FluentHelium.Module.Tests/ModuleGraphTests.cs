@@ -37,7 +37,7 @@ namespace FluentHelium.Module.Tests
                 var b = typeof(object).ToProducerModuleDescriptor("B");
                 return new[] { a, b };
             }).
-            When(_ => _.ToModuleGraphSimple()).
+            When(_ => _.ToSimpleModuleGraph()).
             Then(_ => _.Input.Count.Should().Be(0)).
                 And(_ => _.Output.First().Key.Should().Be(typeof(object))).
                 And(_ => _.Output.First().Count().Should().Be(1)).
@@ -52,9 +52,10 @@ namespace FluentHelium.Module.Tests
             {
                 var a = typeof (object).ToModuleDescriptor("A", typeof (int));
                 var b = typeof (int).ToModuleDescriptor("B", typeof (object));
-                return new[] { a, b };
+                var c = typeof(int).ToConsumerModuleDescriptor("C");
+                return new[] { c, a, b };
             }).
-            When(_ => _.ToModuleGraphSimple()).
+            When(_ => _.ToSimpleModuleGraph()).
             Then(_ => _.Input.Count.Should().Be(0)).
                 And(_ => _.Output.Count().Should().Be(2)).
                 And(_ => _.Cycle.Count.Should().Be(2));
@@ -71,7 +72,7 @@ namespace FluentHelium.Module.Tests
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraphSimple().
+                ToSimpleModuleGraph().
                 ToSuperModule((t, i) => t == typeof (double) ? i.First() : null, "C", Guid.Empty, _.ToImmutableDictionary(m => m.Descriptor)).Descriptor).
             Then(_ => _.Input.Count.Should().Be(1)).
                 And(_ => _.Input.First().Should().Be(typeof(object))).
@@ -225,7 +226,7 @@ namespace FluentHelium.Module.Tests
                 var b = typeof (int).ToModuleDescriptor("B", typeof (double));
                 return new[] {a, b};
             }).
-            When(_ => _.ToModuleGraphSimple().ToPlantUml()).
+            When(_ => _.ToSimpleModuleGraph().ToPlantUml()).
             Then(_ => _.Should().Contain("[B] ..> [A] : Int32"));
         }
 
@@ -240,7 +241,7 @@ namespace FluentHelium.Module.Tests
                 And(_ =>
                 {
                     var modules = _.ToImmutableDictionary(d => d, d => d.ToFakeModule());
-                    var graph = _.ToModuleGraphSimple();
+                    var graph = _.ToSimpleModuleGraph();
                     return graph.ToModuleController(modules, graph.Input.Select(g => g.Key).ToFakeProvider());
                 }).
             When((_, mock) => { _.GetProvider(mock[1]); }).
@@ -259,7 +260,7 @@ namespace FluentHelium.Module.Tests
                 And(_ =>
                 {
                     var modules = _.ToImmutableDictionary(d => d, d => d.ToFakeModule());
-                    var graph = _.ToModuleGraphSimple();
+                    var graph = _.ToSimpleModuleGraph();
                     return graph.ToModuleController(modules, graph.Input.Select(g => g.Key).ToFakeProvider());
                 }).
             When((_, mock) => { _.GetProvider(mock[1]).Dispose(); }).

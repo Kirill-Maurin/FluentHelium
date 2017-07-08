@@ -88,7 +88,7 @@ namespace FluentHelium.Module
             this IModuleGraph graph, IImmutableDictionary<IModuleDescriptor, IModule> modules, IDependencyProvider input) =>
             new ModuleController(graph, input, modules);
 
-        public static IModuleGraph ToModuleGraphSimple(this IEnumerable<IModuleDescriptor> modules) =>
+        public static IModuleGraph ToSimpleModuleGraph(this IEnumerable<IModuleDescriptor> modules) =>
             modules.ToModuleGraph(DependencyBuilder().Simple().ElseExternal());
 
         public static IModuleGraph ToModuleGraph(
@@ -149,7 +149,7 @@ namespace FluentHelium.Module
                     path.Push(current);
                     if (colors[next] == Color.Gray)
                     {
-                        order = path;
+                        order = path.TakeWhile(c => !ReferenceEquals(c, next)).Concat(new []{next});
                         return false;
                     }
                     current = next;

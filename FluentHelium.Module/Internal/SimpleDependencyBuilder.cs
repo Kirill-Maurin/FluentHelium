@@ -17,7 +17,7 @@ namespace FluentHelium.Module
             IModuleDescriptor client,
             Type @interface,
             ILookup<Type, IModuleDescriptor> implementations) =>
-            implementations[@interface].FirstOrDefault()
+            implementations[@interface].SingleOrDefault()
                 ?.ToModuleInputDependency(client, @interface, (s, provider) => provider(s).Resolve(@interface)) 
                 ?? _fallback.Build(client, @interface, implementations);
 
