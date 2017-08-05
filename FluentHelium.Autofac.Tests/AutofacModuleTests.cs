@@ -22,7 +22,7 @@ namespace FluentHelium.Autofac.Tests
         }
 
         [Fact]
-        public void GivenSimpleModule_WhenRegisterResolveResolveRelease_ThenCorretlyResolved()
+        public void GivenSimpleModule_WhenRegisterResolveResolveRelease_ThenCorrectlyResolved()
         {
             Given(CreateModule((m, dp, md, dd) => m)).
             When(RegisterResolveResolveRelease).

@@ -11,14 +11,21 @@ namespace FluentHelium.Autofac
     public static class AutofacModuleExtensions
     {
         public static void RegisterFluentHeliumModule<T>(this ContainerBuilder builder, IModule module) =>
-            builder.RegisterFluentHeliumModule(module, new [] { typeof(T) });
+            builder.RegisterFluentHeliumModule(module, typeof(T));
 
-        public static void RegisterFluentHeliumModule(this ContainerBuilder builder, IModule module) =>
-            builder.RegisterFluentHeliumModule(module, module.Descriptor.Output);
+        public static void RegisterFluentHeliumModule(
+            this ContainerBuilder builder, 
+            IModule module, 
+            params Type[] types) =>
+                builder.RegisterFluentHeliumModule(module, (IEnumerable<Type>)types);
 
         public static void RegisterFluentHeliumModule(this ContainerBuilder builder, IModule module, IEnumerable<Type> types)
         {
             var dependencies = types.ToArray();
+            if (dependencies.Length == 0)
+            {
+                dependencies = module.Descriptor.Output.ToArray();
+            }
             if (!module.Descriptor.Output.IsSupersetOf(dependencies))
                 throw new ArgumentException($"Module {module.Descriptor.Name} doesn't implement at least one of target types", nameof(types));
 
@@ -42,6 +49,12 @@ namespace FluentHelium.Autofac
                 MakeGenericMethod(dependency).
                 Invoke(null, new object[] {builder, action});
 
+        /// <summary>
+        /// Creation module based on Autofac container
+        /// </summary>
+        /// <param name="descriptor"></param>
+        /// <param name="registrator"></param>
+        /// <returns></returns>
         public static IModule ToAutofacModule(this IModuleDescriptor descriptor, Action<ContainerBuilder> registrator) =>
             new AutofacModule(descriptor, registrator);
 

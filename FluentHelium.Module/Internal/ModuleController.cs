@@ -10,7 +10,7 @@ namespace FluentHelium.Module
 {
     internal sealed class ModuleController : IModuleController
     {
-        public ModuleController(IModuleGraph graph, IDependencyProvider input, IImmutableDictionary<IModuleDescriptor, IModule> modules)
+        public ModuleController(IModuleGraph graph, IDependencyProvider input, IReadOnlyDictionary<IModuleDescriptor, IModule> modules)
         {
             if (graph.Cycle != null)
                 throw new ArgumentException("Module graph contains dependency cycle", nameof(graph));
@@ -63,7 +63,7 @@ namespace FluentHelium.Module
             new ConcurrentDictionary<IModuleDescriptor, Func<Usable<IDependencyProvider>>>();
 
         private readonly IDependencyProvider _input;
-        private readonly IImmutableDictionary<IModuleDescriptor, IModule> _modules;
+        private readonly IReadOnlyDictionary<IModuleDescriptor, IModule> _modules;
         private readonly Subject<KeyValuePair<IModuleDescriptor, bool>> _activeChanged;
         private readonly IModuleGraph _graph;
     }

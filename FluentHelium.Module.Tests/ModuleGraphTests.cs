@@ -73,7 +73,8 @@ namespace FluentHelium.Module.Tests
             When(_ => _.
                 Select(m => m.Descriptor).
                 ToSimpleModuleGraph().
-                ToSuperModule((t, i) => t == typeof (double) ? i.First() : null, "C", Guid.Empty, _.ToImmutableDictionary(m => m.Descriptor)).Descriptor).
+                ToSuperModule((t, i) => t == typeof (double) ? i.First() : null, "C", Guid.Empty, _).
+                Descriptor).
             Then(_ => _.Input.Count.Should().Be(1)).
                 And(_ => _.Input.First().Should().Be(typeof(object))).
                 And(_ => _.Output.Count.Should().Be(1)).

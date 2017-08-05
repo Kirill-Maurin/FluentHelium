@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using static FluentHelium.Module.ModuleDescriptorExtensions;
+using static FluentHelium.Module.EnumerableExtensions;
 
 namespace FluentHelium.Module
 {
@@ -33,8 +34,8 @@ namespace FluentHelium.Module
 
         public static string ToPlantUml(this IModuleDescriptor descriptor) =>
             string.Join("\n",
-                descriptor.Input.Select(t => $"[{descriptor.Name}] .d.> {t.Name}").
-                Concat(descriptor.Output.Select(t => $"[{descriptor.Name}] -u-> {t.Name}")).
-                Concat(new [] {$"note right of [{descriptor.Name}] : {descriptor.Id}"}));
+                Enumerable($"note right of [{descriptor.Name}] : {descriptor.Id}").
+                Concat(descriptor.Input.Select(t => $"[{descriptor.Name}] .d.> {t.Name}")).
+                Concat(descriptor.Output.Select(t => $"[{descriptor.Name}] -u-> {t.Name}")));
     }
 }

@@ -37,20 +37,110 @@ namespace FluentHelium.Module
             }
         }
 
-        public static IModule ToSuperModule(this IModuleGraph graph,
-            Func<Type, IEnumerable<IModuleDescriptor>, IModuleDescriptor> tryChoiceOutput, string name, Guid id, IImmutableDictionary<IModuleDescriptor, IModule> modules)
+        public static IModule ToSimpleSuperModule(this IModuleGraph graph, string name, params IModule[] modules) =>
+            graph.ToSuperModule(
+                (t, mds) => mds.SingleOrDefault(),
+                name,
+                Guid.NewGuid(), 
+                modules);
+        
+        public static IModule ToSimpleLazyModule(this IModuleGraph graph, string name, params IModule[] modules) =>
+            graph.ToLazyModule(
+                (t, mds) => mds.SingleOrDefault(),
+                name,
+                Guid.NewGuid(),
+                modules);
+        /// <summary>
+        /// Create super module - activate all modules from graph during super module activation
+        /// </summary>
+        /// <param name="graph"></param>
+        /// <param name="tryChoiceOutput"></param>
+        /// <param name="name"></param>
+        /// <param name="id"></param>
+        /// <param name="modules"></param>
+        /// <returns></returns>
+        public static IModule ToSuperModule(
+            this IModuleGraph graph,
+            Func<Type, IEnumerable<IModuleDescriptor>, IModuleDescriptor> tryChoiceOutput,
+            string name,
+            Guid id ,
+            params IModule[] modules) =>
+            CreateModule(graph, tryChoiceOutput, name, id, CreateSuperModule, modules);
+
+        /// <summary>
+        /// Create "lazy" super module - activate modules from graph on demand and deactivate if unused
+        /// </summary>
+        /// <param name="graph"></param>
+        /// <param name="tryChoiceOutput"></param>
+        /// <param name="name"></param>
+        /// <param name="id"></param>
+        /// <param name="modules"></param>
+        /// <returns></returns>
+        public static IModule ToLazyModule(
+            this IModuleGraph graph,
+            Func<Type, IEnumerable<IModuleDescriptor>, IModuleDescriptor> tryChoiceOutput,
+            string name,
+            Guid id,
+            params IModule[] modules) =>
+            CreateModule(graph, tryChoiceOutput, name, id, CreateLazyModule, modules);
+
+        private static IModule CreateModule(
+            IModuleGraph graph,
+            Func<Type, IEnumerable<IModuleDescriptor>, IModuleDescriptor> tryChoiceOutput, 
+            string name, 
+            Guid id, 
+            Func<IModuleGraph, IReadOnlyDictionary<IModuleDescriptor, IModule>, IModuleDescriptor, IEnumerable<KeyValuePair<Type, IModuleDescriptor>>, IModule> factory,
+            params IModule[] modules)
         {
             if (graph.Cycle != null)
-                throw new ArgumentException("Cannot create module from dependency graph with cycle");
-            var output = graph.Output.
-                Select(g => g.Key.LinkKey(tryChoiceOutput(g.Key, g))).
-                Where(p => p.Key != null).
-                ToImmutableList();
-            var descriptor = graph.Input.Select(g => g.Key).ToModuleDescriptor(name, id, output.Select(p => p.Value));
-            return descriptor.ToModule(dependencies =>
-                graph.Activate(dependencies, modules).
-                    Select(p => p.ToDependencyProvider(output.ToLookup(g => g.Key, g => g.Value))));
+                throw new ArgumentException("Cannot create module from dependency graph with cycle", nameof(graph));
+            var descriptor2Module = modules.ToImmutableDictionary(m => m.Descriptor);
+            if (graph.Order.Any(md => !descriptor2Module.ContainsKey(md)))
+                throw new ArgumentException("Need module for each descriptor from graph", nameof(modules));
+            var output = graph.SelectOutput(tryChoiceOutput).ToImmutableList();
+            var descriptor = graph.Input.Select(g => g.Key).ToModuleDescriptor(name, id, output.Select(p => p.Key));
+            return factory(graph, descriptor2Module, descriptor, output);
         }
+
+        private static IModule CreateSuperModule(
+            IModuleGraph graph, 
+            IReadOnlyDictionary<IModuleDescriptor, IModule> descriptor2Module, IModuleDescriptor descriptor, IEnumerable<KeyValuePair<Type, IModuleDescriptor>> output)
+        {
+            var module2Types = output.ToLookup(g => g.Value, g => g.Key);
+            return descriptor.ToModule(dependencies =>
+            {
+                return graph.Activate(dependencies, descriptor2Module).
+                    Select(p => p.ToDependencyProvider(module2Types));
+            });
+        }
+
+        private static IModule CreateLazyModule(
+            IModuleGraph graph,
+            IReadOnlyDictionary<IModuleDescriptor, IModule> descriptor2Module, IModuleDescriptor descriptor, IEnumerable<KeyValuePair<Type, IModuleDescriptor>> output)
+        {
+            var type2Module = output.ToImmutableDictionary(o => o.Key, o => o.Value);
+
+            return descriptor.ToModule(
+                dependencies =>
+                {
+                    var controller = graph.ToModuleController(descriptor2Module, dependencies);
+                    return type2Module.Keys.
+                        ToDependencyProvider(t => controller.GetProvider(type2Module[t]).Select(p => p.Resolve(t))).
+                        ToUsable();
+                });
+        }
+
+        /// <summary>
+        /// Select output types and implementations from module graph
+        /// </summary>
+        /// <param name="graph"></param>
+        /// <param name="tryChoiceOutput">Can return module or null for output type</param>
+        /// <returns></returns>
+        public static IEnumerable<KeyValuePair<Type, IModuleDescriptor>> SelectOutput(
+            this IModuleGraph graph, Func<Type, IEnumerable<IModuleDescriptor>, IModuleDescriptor> tryChoiceOutput) => 
+            graph.Output.
+                Select(g => g.Key.LinkValue(tryChoiceOutput(g.Key, g))).
+                Where(p => p.Key != null);
 
         public static IDependencyProvider ToDependencyProvider(
             this IReadOnlyDictionary<IModuleDescriptor, IDependencyProvider> providers,
@@ -58,7 +148,7 @@ namespace FluentHelium.Module
                 providers.Select(p => p.Value.Restrict(selector[p.Key])).Aggregate((l, r) => l.Union(r));
 
         public static Usable<IReadOnlyDictionary<IModuleDescriptor, IDependencyProvider>> Activate(
-            this IModuleGraph graph, IDependencyProvider kernel, IImmutableDictionary<IModuleDescriptor, IModule> modules)
+            this IModuleGraph graph, IDependencyProvider kernel, IReadOnlyDictionary<IModuleDescriptor, IModule> modules)
         {
             var missed = graph.Input.Select(g => g.Key).ToImmutableHashSet().Except(kernel.Dependencies);
             if (!missed.IsEmpty)
@@ -85,7 +175,7 @@ namespace FluentHelium.Module
         }
 
         public static IModuleController ToModuleController(
-            this IModuleGraph graph, IImmutableDictionary<IModuleDescriptor, IModule> modules, IDependencyProvider input) =>
+            this IModuleGraph graph, IReadOnlyDictionary<IModuleDescriptor, IModule> modules, IDependencyProvider input) =>
             new ModuleController(graph, input, modules);
 
         public static IModuleGraph ToSimpleModuleGraph(this IEnumerable<IModuleDescriptor> modules) =>
@@ -120,12 +210,21 @@ namespace FluentHelium.Module
 
         public enum Color { White, Gray, Black }
 
+
+        /// <summary>
+        /// Generic topology sort
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="nodes"></param>
+        /// <param name="getLinks"></param>
+        /// <param name="order">Order if success, cycle if fail</param>
+        /// <returns>True - success, False - fail (graph contains at least one cycle)</returns>
         public static bool TryTopologySort<T>(
-            IEnumerable<T> modules,
+            this IEnumerable<T> nodes,
             Func<T, IEnumerable<T>> getLinks,
             out IEnumerable<T> order) where T : class
         {
-            var moduleList = modules.ToImmutableList();
+            var moduleList = nodes.ToImmutableList();
             var path = new Stack<T>();
             var result = new List<T>();
             var colors = Enumerable.Range(0, moduleList.Count).ToDictionary(i => moduleList[i], i => Color.White);
