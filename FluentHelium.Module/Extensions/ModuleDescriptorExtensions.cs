@@ -27,7 +27,7 @@ namespace FluentHelium.Module
 
         public static IModuleDescriptor ToProducerModuleDescriptor(
             this Type input, string name) =>
-            Enumerable.Empty<Type>().ToModuleDescriptor(name, Guid.NewGuid(), new Type[0].ToImmutableHashSet());
+            Enumerable.Empty<Type>().ToModuleDescriptor(name, Guid.NewGuid(), new[] { input } .ToImmutableHashSet());
         
         public static IModuleDescriptor ToConsumerModuleDescriptor(
             this Type output, string name) =>

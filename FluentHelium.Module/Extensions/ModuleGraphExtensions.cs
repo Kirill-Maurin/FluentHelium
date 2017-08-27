@@ -50,6 +50,7 @@ namespace FluentHelium.Module
                 name,
                 Guid.NewGuid(),
                 modules);
+
         /// <summary>
         /// Create super module - activate all modules from graph during super module activation
         /// </summary>
@@ -140,7 +141,7 @@ namespace FluentHelium.Module
             this IModuleGraph graph, Func<Type, IEnumerable<IModuleDescriptor>, IModuleDescriptor> tryChoiceOutput) => 
             graph.Output.
                 Select(g => g.Key.LinkValue(tryChoiceOutput(g.Key, g))).
-                Where(p => p.Key != null);
+                Where(p => p.Value != null);
 
         public static IDependencyProvider ToDependencyProvider(
             this IReadOnlyDictionary<IModuleDescriptor, IDependencyProvider> providers,
