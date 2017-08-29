@@ -1,0 +1,14 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+install:
+- cmd: choco install resharper-clt
+before_build:
+- ps: nuget restore
+build:
+  verbosity: minimal
+after_build:
+- cmd: InspectCode.exe -o=resharper-clt-output.xml FluentHelium.sln
+- ps: $result = [xml](Get-Content .\resharper-clt-output.xml)
+- ps: $result.Report.Issues.ChildNodes | % {$project = $_.Name; $_.ChildNodes | % {Add-AppveyorCompilationMessage -Message $_.Message -Line $_.Line -FileName $_.File -ProjectName $project}}
+test_script:
+- ps: Get-ChildItem *.Tests.csproj -r | % { dotnet test $_.FullName --no-build }
