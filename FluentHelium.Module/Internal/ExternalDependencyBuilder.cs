@@ -9,9 +9,6 @@ namespace FluentHelium.Module
     /// </summary>
     internal sealed class ExternalDependencyBuilder : IModuleDependencyBuilder
     {
-        internal ExternalDependencyBuilder()
-        { }
-
         public IModuleInputDependency Build(IModuleDescriptor client, Type @interface, ILookup<Type, IModuleDescriptor> implementations) =>
             ExternalModule.ToModuleInputDependency(client, @interface, provider => provider(ExternalModule).Resolve(@interface));
     }

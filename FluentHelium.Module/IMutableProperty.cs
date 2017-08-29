@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Reactive.Subjects;
-using System.Text;
+﻿using System.Reactive.Subjects;
 
 namespace FluentHelium.Module
 {

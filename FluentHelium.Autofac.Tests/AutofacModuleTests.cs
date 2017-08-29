@@ -118,7 +118,6 @@ namespace FluentHelium.Autofac.Tests
 
         private sealed class Input
         {
-            public int Value => 42;
         }
     }
 }

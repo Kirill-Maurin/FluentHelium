@@ -136,6 +136,7 @@ namespace FluentHelium.Bdd
                 throw new InvalidOperationException($"Test has thrown an exception {e.GetType().Name}:{e.Message}", e);
         }
 
+        // ReSharper disable once UnusedParameter.Local
         private static void CheckNotNull(Exception e)
         {
             if (e == null)

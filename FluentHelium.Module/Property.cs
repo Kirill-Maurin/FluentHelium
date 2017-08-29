@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FluentHelium.Module
+﻿namespace FluentHelium.Module
 {
     public static class Property
     {
