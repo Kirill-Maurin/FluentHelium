@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using static FluentHelium.Module.ModuleDependencyExtensions;
+using static FluentHelium.Module.DependencyBuilder;
 
 namespace FluentHelium.Module
 {
@@ -180,7 +180,7 @@ namespace FluentHelium.Module
             new ModuleController(graph, input, modules);
 
         public static IModuleGraph ToSimpleModuleGraph(this IEnumerable<IModuleDescriptor> modules) =>
-            modules.ToModuleGraph(DependencyBuilder().Simple().ElseExternal());
+            modules.ToModuleGraph(Simple.ToBuilder(External));
 
         public static IModuleGraph ToModuleGraph(
             this IEnumerable<IModuleDescriptor> modules,

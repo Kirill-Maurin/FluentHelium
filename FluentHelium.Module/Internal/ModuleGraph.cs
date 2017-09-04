@@ -27,6 +27,7 @@ namespace FluentHelium.Module
 
         public override string ToString() =>
             (Order?.Count ?? 0) > 0 
+                // ReSharper disable once AssignNullToNotNullAttribute
                 ? $"ModuleGraph Order{{{string.Join("; ", Order.Select(d => d.Name))}}}"
                 : $"ModuleGraph Cycle{{{string.Join("=>", Cycle.Select(d => d.Name))}}}";
     }

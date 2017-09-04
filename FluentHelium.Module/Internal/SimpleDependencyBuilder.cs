@@ -3,8 +3,9 @@ using System.Linq;
 
 namespace FluentHelium.Module
 {
+    /// <inheritdoc />
     /// <summary>
-    /// Simple builder: use the first implementation from available else use fallback
+    /// Simple builder: use the single implementation from available else use fallback
     /// </summary>
     internal sealed class SimpleDependencyBuilder : IModuleDependencyBuilder
     {

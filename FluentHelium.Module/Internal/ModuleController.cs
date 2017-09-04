@@ -39,8 +39,7 @@ namespace FluentHelium.Module
                 }).
                 ToUsable(() =>
                 {
-                    Func<Usable<IDependencyProvider>> r;
-                    _providers.TryRemove(descriptor, out r);
+                    _providers.TryRemove(descriptor, out var _);
                     _activeChanged.OnNext(descriptor.LinkValue(false));
                 });
             return provider.ToRefCount();

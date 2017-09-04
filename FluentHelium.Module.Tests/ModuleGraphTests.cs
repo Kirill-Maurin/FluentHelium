@@ -5,7 +5,7 @@ using System.Linq;
 using FluentAssertions;
 using Xunit;
 using static FluentHelium.Bdd.GivenWhenThenExtensions;
-using static FluentHelium.Module.ModuleDependencyExtensions;
+using static FluentHelium.Module.DependencyBuilder;
 using static FluentHelium.Module.ModuleExtensions;
 
 namespace FluentHelium.Module.Tests
@@ -20,7 +20,7 @@ namespace FluentHelium.Module.Tests
                 var a = typeof(object).ToModuleDescriptor("A", typeof (int));
                 return new[] {a};
             }).
-            When(_ => _.ToModuleGraph(DependencyBuilder().Simple().ElseExternal())).
+            When(_ => _.ToModuleGraph(Simple.ToBuilder(External))).
             Then(_ => _.Input.Count.Should().Be(1)).
                 And(_ => _.Input.First().Key.Should().Be(typeof (object))).
                 And(_ => _.Input.First().Count().Should().Be(1)).
@@ -92,7 +92,7 @@ namespace FluentHelium.Module.Tests
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraph(DependencyBuilder().Optional().Simple().ElseExternal())).
+                ToModuleGraph(Optional.Or(Simple).ToBuilder(External))).
             Then(_ => _.Input.Count.Should().Be(1)).
                 And(_ => _.Input.First().Key.Should().Be(typeof(object))).
                 And(_ => _.Input.First().Count().Should().Be(1)).
@@ -112,7 +112,7 @@ namespace FluentHelium.Module.Tests
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraph(DependencyBuilder().Optional().Multiple().Simple().ElseExternal()).
+                ToModuleGraph(Optional.Or(Multiple).Or(Simple).ToBuilder(External)).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
                     DependencyProvider.Empty).
@@ -132,7 +132,7 @@ namespace FluentHelium.Module.Tests
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraph(DependencyBuilder().Optional().Simple().ElseExternal()).
+                ToModuleGraph(Optional.Or(Simple).ToBuilder(External)).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
                     DependencyProvider.Empty).
@@ -151,7 +151,7 @@ namespace FluentHelium.Module.Tests
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraph(DependencyBuilder().Optional().Simple().ElseExternal()).
+                ToModuleGraph(Optional.Or(Simple).ToBuilder(External)).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
                     ((int?)null).ToDependencyProvider()).
@@ -171,7 +171,7 @@ namespace FluentHelium.Module.Tests
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraph(DependencyBuilder().Optional().Simple().ElseExternal()).
+                ToModuleGraph(Optional.Or(Simple).ToBuilder(External)).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
                     DependencyProvider.Empty).
@@ -190,7 +190,7 @@ namespace FluentHelium.Module.Tests
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraph(DependencyBuilder().Optional().Simple().ElseExternal()).
+                ToModuleGraph(Optional.Or(Simple).ToBuilder(External)).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
                     ((object)null).ToOption().ToDependencyProvider()).
@@ -210,7 +210,7 @@ namespace FluentHelium.Module.Tests
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraph(DependencyBuilder().Optional().Simple().ElseExternal())).
+                ToModuleGraph(Optional.Or(Simple).ToBuilder(External))).
             Then(_ => _.Input.Count.Should().Be(1)).
                 And(_ => _.Input.First().Key.Should().Be(typeof(Option<object>))).
                 And(_ => _.Input.First().Count().Should().Be(1)).

@@ -18,8 +18,8 @@ namespace FluentHelium.Module
         public static IModuleDescriptor CreateSimpleDescriptor<T>(string name) => CreateSimpleDescriptor<T>(name, Guid.NewGuid());
 
         public static IModuleDescriptor ToModuleDescriptor(
-                    this IEnumerable<Type> input, string name, Guid id, params Type[] output) =>
-                        new ModuleDescriptor(name, id, input.ToImmutableHashSet(), output.ToImmutableHashSet());
+            this IEnumerable<Type> input, string name, Guid id, params Type[] output) =>
+                new ModuleDescriptor(name, id, input.ToImmutableHashSet(), output.ToImmutableHashSet());
 
         public static IModuleDescriptor ToModuleDescriptor(
             this Type input, string name, Guid id, params Type[] output) =>
