@@ -12,7 +12,7 @@ namespace FluentHelium.Module
     {
         public ModuleController(IModuleGraph graph, IDependencyProvider input, IReadOnlyDictionary<IModuleDescriptor, IModule> modules)
         {
-            if (graph.Cycle != null)
+            if (graph.Cycle.Count > 0)
                 throw new ArgumentException("Module graph contains dependency cycle", nameof(graph));
             _graph = graph;
             _input = input;

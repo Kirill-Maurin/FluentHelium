@@ -93,7 +93,7 @@ namespace FluentHelium.Module
             Func<IModuleGraph, IReadOnlyDictionary<IModuleDescriptor, IModule>, IModuleDescriptor, IEnumerable<KeyValuePair<Type, IModuleDescriptor>>, IModule> factory,
             params IModule[] modules)
         {
-            if (graph.Cycle != null)
+            if (graph.Cycle.Count > 0)
                 throw new ArgumentException("Cannot create module from dependency graph with cycle", nameof(graph));
             var descriptor2Module = modules.ToImmutableDictionary(m => m.Descriptor);
             if (graph.Order.Any(md => !descriptor2Module.ContainsKey(md)))
@@ -265,11 +265,11 @@ namespace FluentHelium.Module
             IImmutableDictionary<IModuleDescriptor, IModuleDependencies> inner,
             ILookup<Type, IModuleDescriptor> inputs,
             ILookup<Type, IModuleDescriptor> outputs) =>
-            new ModuleGraph(inner, inputs, outputs, result.ToImmutableList(), null);
+            new ModuleGraph(inner, inputs, outputs, result.ToImmutableList(), ImmutableList<IModuleDescriptor>.Empty);
 
         private static IModuleGraph CreateModuleGraphWithCycle(
             IImmutableDictionary<IModuleDescriptor, IModuleDependencies> inner,
             ILookup<Type, IModuleDescriptor> inputs, ILookup<Type, IModuleDescriptor> outputs, IEnumerable<IModuleDescriptor> path) =>
-            new ModuleGraph(inner, inputs, outputs, null, path.ToImmutableList());
+            new ModuleGraph(inner, inputs, outputs, ImmutableList<IModuleDescriptor>.Empty, path.ToImmutableList());
     }
 }

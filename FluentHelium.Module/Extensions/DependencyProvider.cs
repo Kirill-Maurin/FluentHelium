@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using NullGuard;
 
 namespace FluentHelium.Module
 {
@@ -47,7 +48,7 @@ namespace FluentHelium.Module
         public static IDependencyProvider ToDependencyProvider(this Type type, Func<Type, Usable<object>> resolver) =>
             new[] { type }.ToDependencyProvider(resolver);
 
-        public static IDependencyProvider ToDependencyProvider<T>(this T value) =>
+        public static IDependencyProvider ToDependencyProvider<T>([AllowNull] this T value) =>
             typeof(T).ToDependencyProvider(t => value.ToUsable().Select(v => (object)v));
 
         public static string ToString(this IDependencyProvider provider) =>

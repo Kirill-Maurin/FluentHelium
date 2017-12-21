@@ -1,11 +1,12 @@
 using System;
+using NullGuard;
 
 
 namespace FluentHelium.Bdd
 {
     public static class GivenWhenThenExtensions
     {
-        public static GivenResult<T, T> Given<T>(T result) => new GivenResult<T, T>(result, result);
+        public static GivenResult<T, T> Given<T>([AllowNull]T result) => new GivenResult<T, T>(result, result);
 
         public static GivenResult<T, T> Given<T>(Func<T> result) => Given(result());
 

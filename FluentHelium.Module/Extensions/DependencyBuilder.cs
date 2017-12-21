@@ -5,13 +5,9 @@ namespace FluentHelium.Module
 {
     public static class DependencyBuilder
     {
-        public static Func<IModuleDependencyBuilder, IModuleDependencyBuilder> Or(
-            this Func<IModuleDependencyBuilder, IModuleDependencyBuilder> linkFallback,
-            Func<IModuleDependencyBuilder, IModuleDependencyBuilder> builderFactory) =>
-            b => linkFallback(builderFactory(b));
         public static IModuleDependencyBuilder ToBuilder(
             this Func<IModuleDependencyBuilder, IModuleDependencyBuilder> linkFallback, IModuleDependencyBuilder fallback = null) =>
-            linkFallback(fallback ?? Fail);
+            linkFallback.Else(fallback ?? Fail);
 
         public static IModuleDependencyBuilder External { get; } = new ExternalDependencyBuilder();
 

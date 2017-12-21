@@ -12,13 +12,13 @@ namespace FluentHelium.Module
 
         public static Usable<T> ToUsable<T>(this T resource, IDisposable usageTime) => new Usable<T>(resource, usageTime);
 
-        public static Usable<T> ToUsable<T>(this Usable<T> resource, IDisposable usageTime)  => new Usable<T>(resource.Value, () =>
+        public static Usable<T> ToUsable<T>(this Usable<T> resource, IDisposable usageTime) => new Usable<T>(resource.Value, () =>
         {
             resource.Dispose();
             usageTime.Dispose();
         });
 
-        public static Usable<T> ToUsable<T>(this Usable<T> resource, Action dispose)  => new Usable<T>(resource.Value, () =>
+        public static Usable<T> ToUsable<T>(this Usable<T> resource, Action dispose) => new Usable<T>(resource.Value, () =>
         {
             resource.Dispose();
             dispose();
@@ -32,13 +32,13 @@ namespace FluentHelium.Module
 
         public static Usable<T> ToSelfUsable<T>(this T resource) where T: IDisposable => resource.ToUsable(resource);
 
-        public static Usable<T> ToUsable<T>(this T resource)  => resource.ToUsable(DoNothing);
+        public static Usable<T> ToUsable<T>(this T resource) => resource.ToUsable(DoNothing);
 
-        public static Usable<T> ToUsable<T>(this T resource, Func<T, IDisposable> usageTimeFactory)  => resource.ToUsable(usageTimeFactory(resource));
+        public static Usable<T> ToUsable<T>(this T resource, Func<T, IDisposable> usageTimeFactory) => resource.ToUsable(usageTimeFactory(resource));
 
-        public static Usable<T> ToUsable<T>(this T resource, Action dispose)  => new Usable<T>(resource, dispose);
+        public static Usable<T> ToUsable<T>(this T resource, Action dispose) => new Usable<T>(resource, dispose);
 
-        public static Usable<T> ToUsable<T>(this T resource, Action<T> dispose)  => resource.ToUsable(() => dispose(resource));
+        public static Usable<T> ToUsable<T>(this T resource, Action<T> dispose) => resource.ToUsable(() => dispose(resource));
 
         public static Usable<T> ToUsable<T>(this T resource, Action<T> init, Action<T> dispose) 
         {
@@ -46,7 +46,7 @@ namespace FluentHelium.Module
             return resource.ToUsable(() => dispose(resource));
         }
 
-        public static Usable<T> ToUsable<T>(this T resource, Func<T, Action> disposeFactory)  => resource.ToUsable(() => disposeFactory(resource));
+        public static Usable<T> ToUsable<T>(this T resource, Func<T, Action> disposeFactory) => resource.ToUsable(() => disposeFactory(resource));
 
         public static Func<Usable<T>> ToRefCount<T>(this Usable<T> source) 
         {
@@ -59,7 +59,7 @@ namespace FluentHelium.Module
             };
         }
 
-        public static Usable<T> Wrap<T>(this IDisposable usageTime, T resource)  => resource.ToUsable(usageTime);
+        public static Usable<T> Wrap<T>(this IDisposable usageTime, T resource) => resource.ToUsable(usageTime);
 
         public static Usable<T> Wrap<T, TDisposable>(this TDisposable usageTime, Func<TDisposable, T> factory) where TDisposable : IDisposable  => 
             factory(usageTime).ToUsable(usageTime);
@@ -99,7 +99,7 @@ namespace FluentHelium.Module
             return usable;
         }
 
-        public static TResult Unwrap<T, TResult>(this Usable<T> usable, Func<T, TResult> func)  => func(usable.Value);
+        public static TResult Unwrap<T, TResult>(this Usable<T> usable, Func<T, TResult> func) => func(usable.Value);
 
         public static Usable<T> Replace<T>(this Usable<T> usable, Usable<T> @new) 
         {
