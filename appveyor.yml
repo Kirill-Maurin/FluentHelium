@@ -5,7 +5,7 @@ install:
 - choco install opencover.portable
 - choco install codecov
 before_build:
-- ps: nuget restore
+- ps: nuget restore FluentHelium.sln
 build:
   verbosity: minimal
 after_build:
