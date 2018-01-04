@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentHelium.Module.Tests", "FluentHelium.Module.Tests\FluentHelium.Module.Tests.csproj", "{32BF0FD5-0310-4917-A205-CB48CF97B333}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentHelium.Autofac.Tests", "FluentHelium.Autofac.Tests\FluentHelium.Autofac.Tests.csproj", "{F4DD0597-F90F-43D7-B867-5310314315CC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{32BF0FD5-0310-4917-A205-CB48CF97B333}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32BF0FD5-0310-4917-A205-CB48CF97B333}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32BF0FD5-0310-4917-A205-CB48CF97B333}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32BF0FD5-0310-4917-A205-CB48CF97B333}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4DD0597-F90F-43D7-B867-5310314315CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4DD0597-F90F-43D7-B867-5310314315CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4DD0597-F90F-43D7-B867-5310314315CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4DD0597-F90F-43D7-B867-5310314315CC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
