@@ -8,6 +8,7 @@ before_build:
 - ps: nuget restore FluentHelium.sln
 build:
   verbosity: minimal
+  project: FluentHelium.sln
 after_build:
 - InspectCode.exe -o=resharper-clt-output.xml FluentHelium.sln
 - ps: $result = [xml](Get-Content .\resharper-clt-output.xml)
