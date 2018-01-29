@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
 
-
-namespace FluentHelium.Module {
+namespace FluentHelium.Module
+{
     /// <inheritdoc />
     /// <summary>
     /// Hard builder: use concrete implementation for (client, service) pair

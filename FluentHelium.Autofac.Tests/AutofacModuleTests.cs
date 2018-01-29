@@ -1,13 +1,11 @@
 ﻿using System;
 using Autofac;
 using FluentAssertions;
-using FluentHelium.Bdd;
 using FluentHelium.Module;
 using NSubstitute;
 using Xunit;
 using static FluentHelium.Bdd.GivenWhenThenExtensions;
 using static NSubstitute.Substitute;
-using IModule = FluentHelium.Module.IModule;
 
 namespace FluentHelium.Autofac.Tests
 {
@@ -91,7 +89,7 @@ namespace FluentHelium.Autofac.Tests
             module.Activate(Arg.Any<IDependencyProvider>()).Returns(o =>
             {
                 var input = o.Arg<IDependencyProvider>().Resolve<Input>();
-                provider.Resolve(typeof (object)).Returns(input.Select(i => (object)i).SelectUsable(d => dependencyDeactivator));
+                provider.Resolve(typeof (object)).Returns(input.Select(i => (object)i).Wrap(d => dependencyDeactivator));
                 return provider.ToUsable(moduleDeactivator);
             });
             return toResult(module, provider, moduleDeactivator, dependencyDeactivator);

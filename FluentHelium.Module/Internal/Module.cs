@@ -20,7 +20,7 @@ namespace FluentHelium.Module
             try
             {
                 _active.OnNext(true);
-                return _activator(dependencies).ToUsable(() => _active.OnNext(false));
+                return _activator(dependencies).Wrap(() => _active.OnNext(false));
             }
             catch
             {

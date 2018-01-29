@@ -1,7 +1,6 @@
 ﻿using System;
 using Autofac;
 using FluentHelium.Module;
-using IModule = FluentHelium.Module.IModule;
 
 namespace FluentHelium.Autofac
 {
@@ -30,7 +29,7 @@ namespace FluentHelium.Autofac
                 return builder.
                     Build().
                     ToSelfUsable().
-                    WrapUsable(c => _active.OnNext(true), c => _active.OnNext(false)).
+                    Wrap(c => _active.OnNext(true), c => _active.OnNext(false)).
                     Select(c => Descriptor.Output.ToDependencyProvider(t => c.Resolve(t).ToUsable()));
             }
             catch

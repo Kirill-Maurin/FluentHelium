@@ -14,7 +14,7 @@ namespace FluentHelium.Module
             CreateSimpleDescriptor<T>(name).ToModule(p => activate().ToDependencyProvider().ToUsable());
 
         public static IModule CreateSimpleModule<T>(string name, Action<T> activate) =>
-            typeof(T).ToConsumerModuleDescriptor(name).ToModule(p => p.Resolve<T>().Select(i => {
+            typeof(T).ToConsumerModuleDescriptor(name).ToModule(p => p.Resolve<T>().SelectMany(i => {
                 activate(i);
                 return DependencyProvider.Empty.ToUsable();
             }));

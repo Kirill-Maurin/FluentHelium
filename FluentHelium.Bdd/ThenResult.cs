@@ -1,14 +1,9 @@
-using System;
+using FluentHelium.Module;
 
 namespace FluentHelium.Bdd
 {
-    public sealed class ThenResult<T, TMock> : GivenWhenThenBase<T, TMock>
+    public sealed class ThenResult<T, TMock> : GivenWhenThenBase<Result<T>, TMock>
     {
-        internal ThenResult(T result, TMock mock, Exception e = null) : base(result, mock)
-        {
-            Exception = e;
-        }
-
-        internal Exception Exception { get; set; }
+        internal ThenResult(Result<T> result, TMock mock) : base(result, mock) { }
     }
 }

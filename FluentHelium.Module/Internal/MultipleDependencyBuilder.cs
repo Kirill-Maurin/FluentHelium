@@ -46,6 +46,7 @@ namespace FluentHelium.Module
 
         private IEnumerable SelectMany(IEnumerable<IEnumerable> source)
         {
+            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var e in source)
             {
                 foreach (var o in e)

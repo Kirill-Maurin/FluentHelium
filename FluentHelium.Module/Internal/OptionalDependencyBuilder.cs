@@ -35,9 +35,9 @@ namespace FluentHelium.Module
         }
 
         private object CreateOption(object o, Type t) =>
-            typeof(OptionExtensions).
+            typeof(Option).
                 GetTypeInfo().
-                GetDeclaredMethods(nameof(OptionExtensions.ToOption)).
+                GetDeclaredMethods(nameof(Option.ToOption)).
                 Where(m => m.IsGenericMethod).
                 First(m =>
                 {

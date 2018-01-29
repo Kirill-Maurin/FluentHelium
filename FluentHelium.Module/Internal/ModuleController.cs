@@ -30,14 +30,14 @@ namespace FluentHelium.Module
         {
             var dependecies = _graph.Dependencies[descriptor];
             var provider = GetDependencyProviders(descriptor).
-                Select(i =>
+                SelectMany(i =>
                 {
                     var result = _modules[descriptor].Activate(
                         descriptor.Input.ToDependencyProvider(t => dependecies[t].Resolve(d => i[d])));
                     _activeChanged.OnNext(descriptor.LinkValue(true));
                     return result;
                 }).
-                ToUsable(() =>
+                Wrap(() =>
                 {
                     _providers.TryRemove(descriptor, out var _);
                     _activeChanged.OnNext(descriptor.LinkValue(false));

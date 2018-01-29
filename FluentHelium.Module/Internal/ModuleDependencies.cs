@@ -19,7 +19,7 @@ namespace FluentHelium.Module
 
         public IModuleDescriptor Client { get; }
         public int Count => _dependencies.Count;
-        public IModuleInputDependency this[Type @interface] { get { return _dependencies[@interface]; } }
+        public IModuleInputDependency this[Type @interface] => _dependencies[@interface];
         public ILookup<IModuleDescriptor, ModuleLink> Links { get; }
 
         public IEnumerator<IModuleInputDependency> GetEnumerator() => _dependencies.Values.GetEnumerator();

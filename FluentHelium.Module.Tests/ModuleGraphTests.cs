@@ -237,7 +237,7 @@ namespace FluentHelium.Module.Tests
             Given(() => new []
             {
                 typeof (object).ToModuleDescriptor("A", typeof (int)),
-                typeof (int).ToModuleDescriptor("B", typeof (double)),
+                typeof (int).ToModuleDescriptor("B", typeof (double))
             }).
                 And(_ =>
                 {
@@ -256,7 +256,7 @@ namespace FluentHelium.Module.Tests
             Given(() => new[]
             {
                 typeof (object).ToModuleDescriptor("A", typeof (int)),
-                typeof (int).ToModuleDescriptor("B", typeof (double)),
+                typeof (int).ToModuleDescriptor("B", typeof (double))
             }).
                 And(_ =>
                 {
