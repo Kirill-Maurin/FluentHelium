@@ -25,8 +25,8 @@ namespace FluentHelium.Module
             }
         }
 
-        private static string ToPlantUml(IModuleDescriptor client, IModuleDescriptor implementation, Type @type) =>
-            $"[{client.Name}] ..> [{implementation.Name}] : {@type.Name}";
+        private static string ToPlantUml(IModuleDescriptor client, IModuleDescriptor implementation, Type type) =>
+            $"[{client.Name}] ..> [{implementation.Name}] : {type.Name}";
 
         public static string ToPlantUml(this IModuleGraph graph)
         {
@@ -126,7 +126,7 @@ namespace FluentHelium.Module
                 {
                     var controller = graph.ToModuleController(descriptor2Module, dependencies);
                     return type2Module.Keys.
-                        ToDependencyProvider(t => controller.GetProvider(type2Module[t]).Select(p => p.Resolve(t))).
+                        ToDependencyProvider(t => controller.GetProvider(type2Module[t]).SelectMany(p => p.Resolve(t))).
                         ToUsable();
                 });
         }
@@ -204,7 +204,7 @@ namespace FluentHelium.Module
             return TryTopologySort(
                 moduleList,
                 m => inner.GetValueOrDefault(m)?.Links.Select(l => l.Key).Where(i => !i.IsExternal()) ?? Enumerable.Empty<IModuleDescriptor>(),
-                out IEnumerable<IModuleDescriptor> order)
+                out var order)
                 ? CreateSortedModuleGraph(order, inner, inputs, outputs)
                 : CreateModuleGraphWithCycle(inner, inputs, outputs, order);
         }
