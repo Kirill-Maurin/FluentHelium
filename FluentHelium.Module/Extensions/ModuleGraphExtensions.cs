@@ -25,8 +25,8 @@ namespace FluentHelium.Module
             }
         }
 
-        private static string ToPlantUml(IModuleDescriptor client, IModuleDescriptor implementation, Type type) =>
-            $"[{client.Name}] ..> [{implementation.Name}] : {type.Name}";
+        private static string ToPlantUml(IModuleDescriptor client, IModuleDescriptor implementation, Type type) 
+            => $"[{client.Name}] ..> [{implementation.Name}] : {type.Name}";
 
         public static string ToPlantUml(this IModuleGraph graph)
         {
@@ -37,15 +37,15 @@ namespace FluentHelium.Module
             }
         }
 
-        public static IModule ToSimpleSuperModule(this IModuleGraph graph, string name, params IModule[] modules) =>
-            graph.ToSuperModule(
+        public static IModule ToSimpleSuperModule(this IModuleGraph graph, string name, params IModule[] modules) 
+            => graph.ToSuperModule(
                 (t, mds) => mds.SingleOrDefault(),
                 name,
                 Guid.NewGuid(), 
                 modules);
         
-        public static IModule ToSimpleLazyModule(this IModuleGraph graph, string name, params IModule[] modules) =>
-            graph.ToLazyModule(
+        public static IModule ToSimpleLazyModule(this IModuleGraph graph, string name, params IModule[] modules) 
+            => graph.ToLazyModule(
                 (t, mds) => mds.SingleOrDefault(),
                 name,
                 Guid.NewGuid(),
