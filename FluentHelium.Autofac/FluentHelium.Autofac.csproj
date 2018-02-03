@@ -1,9 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.6.2" />
-    <PackageReference Include="NullGuard.Fody" Version="1.6.3" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.4.0" />
-    <PackageReference Include="System.Reactive" Version="3.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FluentHelium.Module\FluentHelium.Module.csproj" />
