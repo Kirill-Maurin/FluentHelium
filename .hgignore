@@ -8,3 +8,6 @@ packages
 .vs
 *.lock.json
 *.sln.DotSettings.user
+.bin
+.idea
+.obj
