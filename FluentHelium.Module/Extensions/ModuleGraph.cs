@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -7,7 +8,7 @@ using static FluentHelium.Module.DependencyBuilder;
 
 namespace FluentHelium.Module
 {
-    public static class ModuleGraphExtensions
+    public static class ModuleGraph
     {
         public static void WritePlantUml(
             this IImmutableDictionary<IModuleDescriptor, IModuleDependencies> dependencies,
@@ -37,14 +38,14 @@ namespace FluentHelium.Module
             }
         }
 
-        public static IModule ToSimpleSuperModule(this IModuleGraph graph, string name, params IModule[] modules) 
+        public static IModule ToSuperModule(this IModuleGraph graph, string name, params IModule[] modules) 
             => graph.ToSuperModule(
                 (t, mds) => mds.SingleOrDefault(),
                 name,
                 Guid.NewGuid(), 
                 modules);
         
-        public static IModule ToSimpleLazyModule(this IModuleGraph graph, string name, params IModule[] modules) 
+        public static IModule ToLazyModule(this IModuleGraph graph, string name, params IModule[] modules) 
             => graph.ToLazyModule(
                 (t, mds) => mds.SingleOrDefault(),
                 name,
@@ -201,63 +202,11 @@ namespace FluentHelium.Module
                     Distinct().
                     Select(t => t.LinkValue(p.Key))).
                 ToLookup(p => p.Key, p => p.Value);
-            return TryTopologySort(
-                moduleList,
+            return moduleList.TryTopologySort(
                 m => inner.GetValueOrDefault(m)?.Links.Select(l => l.Key).Where(i => !i.IsExternal()) ?? Enumerable.Empty<IModuleDescriptor>(),
                 out var order)
                 ? CreateSortedModuleGraph(order, inner, inputs, outputs)
                 : CreateModuleGraphWithCycle(inner, inputs, outputs, order);
-        }
-
-        public enum Color { White, Gray, Black }
-
-
-        /// <summary>
-        /// Generic topology sort
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="nodes"></param>
-        /// <param name="getLinks"></param>
-        /// <param name="order">Order if success, cycle if fail</param>
-        /// <returns>True - success, False - fail (graph contains at least one cycle)</returns>
-        public static bool TryTopologySort<T>(
-            this IEnumerable<T> nodes,
-            Func<T, IEnumerable<T>> getLinks,
-            out IEnumerable<T> order) where T : class
-        {
-            var moduleList = nodes.ToImmutableList();
-            var path = new Stack<T>();
-            var result = new List<T>();
-            var colors = Enumerable.Range(0, moduleList.Count).ToDictionary(i => moduleList[i], i => Color.White);
-
-            foreach (var m in moduleList.Where(m => colors[m] == Color.White))
-            {
-                var current = m;
-                colors[current] = Color.Gray;
-                for (;;)
-                {
-                    var next = getLinks(current).FirstOrDefault(l => colors[l] != Color.Black);
-                    if (next == null)
-                    {
-                        colors[current] = Color.Black;
-                        result.Add(current);
-                        if (path.Count == 0)
-                            break;
-                        current = path.Pop();
-                        continue;
-                    }
-                    path.Push(current);
-                    if (colors[next] == Color.Gray)
-                    {
-                        order = path.TakeWhile(c => !ReferenceEquals(c, next)).Concat(new []{next});
-                        return false;
-                    }
-                    current = next;
-                    colors[current] = Color.Gray;
-                }
-            }
-            order = result;
-            return true;
         }
 
         private static IModuleGraph CreateSortedModuleGraph(
@@ -265,11 +214,62 @@ namespace FluentHelium.Module
             IImmutableDictionary<IModuleDescriptor, IModuleDependencies> inner,
             ILookup<Type, IModuleDescriptor> inputs,
             ILookup<Type, IModuleDescriptor> outputs) =>
-            new ModuleGraph(inner, inputs, outputs, result.ToImmutableList(), ImmutableList<IModuleDescriptor>.Empty);
+            new Implementation(inner, inputs, outputs, result.ToImmutableList(), ImmutableList<IModuleDescriptor>.Empty);
 
         private static IModuleGraph CreateModuleGraphWithCycle(
             IImmutableDictionary<IModuleDescriptor, IModuleDependencies> inner,
             ILookup<Type, IModuleDescriptor> inputs, ILookup<Type, IModuleDescriptor> outputs, IEnumerable<IModuleDescriptor> path) =>
-            new ModuleGraph(inner, inputs, outputs, ImmutableList<IModuleDescriptor>.Empty, path.ToImmutableList());
+            new Implementation(inner, inputs, outputs, ImmutableList<IModuleDescriptor>.Empty, path.ToImmutableList());
+
+        private sealed class Implementation : IModuleGraph
+        {
+            public Implementation(
+                IImmutableDictionary<IModuleDescriptor, IModuleDependencies> dependencies,
+                ILookup<Type, IModuleDescriptor> input,
+                ILookup<Type, IModuleDescriptor> output,
+                IImmutableList<IModuleDescriptor> order,
+                IImmutableList<IModuleDescriptor> cycle)
+            {
+                Dependencies = dependencies;
+                Input = input;
+                Output = output;
+                Order = order;
+                Cycle = cycle;
+            }
+
+            public IImmutableDictionary<IModuleDescriptor, IModuleDependencies> Dependencies { get; }
+            public ILookup<Type, IModuleDescriptor> Input { get; }
+            public ILookup<Type, IModuleDescriptor> Output { get; }
+            public IImmutableList<IModuleDescriptor> Order { get; }
+            public IImmutableList<IModuleDescriptor> Cycle { get; }
+
+            public override string ToString() =>
+                (Order?.Count ?? 0) > 0
+                    // ReSharper disable once AssignNullToNotNullAttribute
+                    ? $"ModuleGraph Order{{{string.Join("; ", Order.Select(d => d.Name))}}}"
+                    : $"ModuleGraph Cycle{{{string.Join("=>", Cycle.Select(d => d.Name))}}}";
+        }
+
+        private sealed class ModuleDependencies : IModuleDependencies
+        {
+            internal ModuleDependencies(IImmutableDictionary<Type, IModuleInputDependency> dependencies, IModuleDescriptor client)
+            {
+                _dependencies = dependencies;
+                Client = client;
+                Links = _dependencies.Values.
+                    SelectMany(d => d.Output.Select(o => new ModuleLink(d.Input, o.Output, d.Client, o.Implementation))).
+                    ToLookup(l => l.Implementation);
+            }
+
+            public IModuleDescriptor Client { get; }
+            public int Count => _dependencies.Count;
+            public IModuleInputDependency this[Type @interface] => _dependencies[@interface];
+            public ILookup<IModuleDescriptor, ModuleLink> Links { get; }
+
+            public IEnumerator<IModuleInputDependency> GetEnumerator() => _dependencies.Values.GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            private readonly IImmutableDictionary<Type, IModuleInputDependency> _dependencies;
+        }
     }
 }

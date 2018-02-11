@@ -27,7 +27,6 @@ namespace FluentHelium.Bdd
             {
                 when(o);
                 return o;
-
             });
 
         public static WhenResult<T, TMock> When<T, TMock>(this GivenResult<T, TMock> givenResult, Action<T, TMock> when) 
@@ -68,16 +67,14 @@ namespace FluentHelium.Bdd
         private static InvalidOperationException CreateThenSuccessException() => 
             new InvalidOperationException("Test has thrown no exception");
 
-        public static ThenResult<T, TMock> ThenCatch<T, TMock>(this WhenResult<T, TMock> whenResult, Action<Exception> then)
-        {
-            then(whenResult.Result.UnwrapFail(CreateThenSuccessException));
-            return new ThenResult<T, TMock>(whenResult.Result, whenResult.Mock);
-        }
+        public static void ThenCatch<T, TMock>(this WhenResult<T, TMock> whenResult, Action<Exception> then) 
+            => then(whenResult.Result.UnwrapFail(CreateThenSuccessException));
 
         public static ThenResult<T, TMock> Then<T, TMock>(this WhenResult<T, TMock> whenResult, Action<T, TMock> then)
         {
-            then(whenResult.Result.Unwrap(CreateThenException), whenResult.Mock);
-            return new ThenResult<T, TMock>(whenResult.Result, whenResult.Mock);
+            var result = whenResult.Result.Unwrap(CreateThenException);
+            then(result, whenResult.Mock);
+            return new ThenResult<T, TMock>(result, whenResult.Mock);
         }
 
         public static ThenResult<T, TMock> ThenMock<T, TMock>(this WhenResult<T, TMock> whenResult, Action<TMock> then) 
@@ -88,7 +85,7 @@ namespace FluentHelium.Bdd
 
         public static ThenResult<T, TMock> And<T, TMock>(this ThenResult<T, TMock> thenResult, Action<T, TMock> and)
         {
-            and(thenResult.Result.Unwrap(CreateThenException), thenResult.Mock);
+            and(thenResult.Result, thenResult.Mock);
             return thenResult;
         }
 

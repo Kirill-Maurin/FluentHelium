@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace FluentHelium.Module
 {
-    public static class ModuleDescriptorExtensions
+    public static class ModuleDescriptor
     {
         public static IModuleDescriptor CreateSimpleDescriptor<TInput, TOutput>(string name, Guid id) =>
             typeof(TInput).ToModuleDescriptor(name, id, typeof(TOutput));
@@ -19,11 +19,11 @@ namespace FluentHelium.Module
 
         public static IModuleDescriptor ToModuleDescriptor(
             this IEnumerable<Type> input, string name, Guid id, params Type[] output) =>
-                new ModuleDescriptor(name, id, input.ToImmutableHashSet(), output.ToImmutableHashSet());
+                new Implementation(name, id, input.ToImmutableHashSet(), output.ToImmutableHashSet());
 
         public static IModuleDescriptor ToModuleDescriptor(
             this Type input, string name, Guid id, params Type[] output) =>
-                new ModuleDescriptor(name, id, new[] { input }.ToImmutableHashSet(), output.ToImmutableHashSet());
+                new Implementation(name, id, new[] { input }.ToImmutableHashSet(), output.ToImmutableHashSet());
 
         public static IModuleDescriptor ToProducerModuleDescriptor(
             this Type input, string name) =>
@@ -39,15 +39,33 @@ namespace FluentHelium.Module
 
         public static IModuleDescriptor ToModuleDescriptor(
             this Type input, string name, params Type[] output) =>
-                new ModuleDescriptor(name, Guid.NewGuid(), new[] { input }.ToImmutableHashSet(), output.ToImmutableHashSet());
+                new Implementation(name, Guid.NewGuid(), new[] { input }.ToImmutableHashSet(), output.ToImmutableHashSet());
 
         public static IModuleDescriptor ToModuleDescriptor(
             this IEnumerable<Type> input, string name, Guid id, IEnumerable<Type> output) =>
-                new ModuleDescriptor(name, id, input.ToImmutableHashSet(), output.ToImmutableHashSet());
+                new Implementation(name, id, input.ToImmutableHashSet(), output.ToImmutableHashSet());
 
         public static string ToString(this IModuleDescriptor descriptor) =>
             $"{descriptor.Name}({descriptor.Id}) {descriptor.Input.Count}/{descriptor.Output.Count}" +
             (descriptor.Input.Count == 0 ? string.Empty : $"\n Input {{{string.Join("; ", descriptor.Input.Select(t => t.Name))}}}") +
-            (descriptor.Output.Count == 0? String.Empty : $"\n Output {{{string.Join("; ", descriptor.Output.Select(t => t.Name))}}}");
+            (descriptor.Output.Count == 0? string.Empty : $"\n Output {{{string.Join("; ", descriptor.Output.Select(t => t.Name))}}}");
+
+        private sealed class Implementation : IModuleDescriptor
+        {
+            public Implementation(string name, Guid id, IImmutableSet<Type> input, IImmutableSet<Type> output)
+            {
+                Name = name;
+                Id = id;
+                Input = input;
+                Output = output;
+            }
+
+            public string Name { get; }
+            public Guid Id { get; }
+            public IImmutableSet<Type> Input { get; }
+            public IImmutableSet<Type> Output { get; }
+
+            public override string ToString() => ModuleDescriptor.ToString(this);
+        }
     }
 }

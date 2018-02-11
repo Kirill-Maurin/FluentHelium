@@ -24,7 +24,7 @@ namespace FluentHelium.Module
         /// </summary>
         int Count { get; }
         /// <summary>
-        /// Dependencies by type
+        /// Dependencies by module
         /// </summary>
         ILookup<IModuleDescriptor, ModuleLink> Links { get; }
     }

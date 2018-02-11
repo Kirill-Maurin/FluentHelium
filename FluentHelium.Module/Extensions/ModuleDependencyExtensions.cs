@@ -8,7 +8,7 @@ namespace FluentHelium.Module
     {
         public static readonly Guid ExternalId = new Guid("{6671930C-FC8F-4148-A596-097D94285279}");
         public static bool IsExternal(this IModuleDescriptor descriptor) => descriptor.Id == ExternalId;
-        public static IModuleDescriptor ExternalModule { get; } = new ModuleDescriptor("ExternalId", ExternalId, null, null);
+        public static IModuleDescriptor ExternalModule { get; } = Enumerable.Empty<Type>().ToModuleDescriptor("External", ExternalId);
 
         public static ModuleOutputDependency ToModuleOutputDependency(
             this Type @interface, IModuleDescriptor descriptor) =>

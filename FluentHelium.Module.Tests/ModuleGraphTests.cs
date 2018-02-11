@@ -6,7 +6,7 @@ using FluentAssertions;
 using Xunit;
 using static FluentHelium.Bdd.GivenWhenThenExtensions;
 using static FluentHelium.Module.DependencyBuilder;
-using static FluentHelium.Module.ModuleExtensions;
+using static FluentHelium.Module.Module;
 
 namespace FluentHelium.Module.Tests
 {
@@ -204,7 +204,7 @@ namespace FluentHelium.Module.Tests
             {
                 var a = typeof (object).ToModuleDescriptor("A", typeof (int));
                 var b = typeof (int).ToModuleDescriptor("B", typeof (double));
-                return new[] {a, b};
+                return new[] { a, b };
             }).
             When(_ => _.ToSimpleModuleGraph().ToPlantUml()).
             Then(_ => _.Should().Contain("[B] ..> [A] : Int32"));
@@ -216,15 +216,15 @@ namespace FluentHelium.Module.Tests
                 typeof (object).ToModuleDescriptor("A", typeof (int)),
                 typeof (int).ToModuleDescriptor("B", typeof (double))
             }).
-            And(_ =>
-            {
-                var modules = _.ToImmutableDictionary(d => d, d => d.ToFakeModule());
-                var graph = _.ToSimpleModuleGraph();
-                return graph.ToModuleController(modules, graph.Input.Select(g => g.Key).ToFakeProvider());
-            }).
+                And(_ =>
+                {
+                    var modules = _.ToImmutableDictionary(d => d, d => d.ToFakeModule());
+                    var graph = _.ToSimpleModuleGraph();
+                    return graph.ToModuleController(modules, graph.Input.Select(g => g.Key).ToFakeProvider());
+                }).
             When((_, mock) => { _.GetProvider(mock[1]); }).
             Then((_, mock) => _.IsActive(mock[0]).Should().BeTrue()).
-            And((_, mock) => _.IsActive(mock[1]).Should().BeTrue());
+                And((_, mock) => _.IsActive(mock[1]).Should().BeTrue());
 
         [Fact]
         public void GivenTwoDependedModulesController_WhenActivateAndDeactivateDependedModule_ThenBothModulesInactive() => 
@@ -233,14 +233,14 @@ namespace FluentHelium.Module.Tests
                 typeof (object).ToModuleDescriptor("A", typeof (int)),
                 typeof (int).ToModuleDescriptor("B", typeof (double))
             }).
-            And(_ =>
-            {
-                var modules = _.ToImmutableDictionary(d => d, d => d.ToFakeModule());
-                var graph = _.ToSimpleModuleGraph();
-                return graph.ToModuleController(modules, graph.Input.Select(g => g.Key).ToFakeProvider());
-            }).
-            When((_, mock) => { _.GetProvider(mock[1]).Dispose(); }).
+                And(_ =>
+                {
+                    var modules = _.ToImmutableDictionary(d => d, d => d.ToFakeModule());
+                    var graph = _.ToSimpleModuleGraph();
+                    return graph.ToModuleController(modules, graph.Input.Select(g => g.Key).ToFakeProvider());
+                }).
+            When((_, mock) =>  _.GetProvider(mock[1]).Dispose()).
             Then((_, mock) => _.IsActive(mock[0]).Should().BeFalse()).
-            And((_, mock) => _.IsActive(mock[1]).Should().BeFalse());
+                And((_, mock) => _.IsActive(mock[1]).Should().BeFalse());
     }
 }

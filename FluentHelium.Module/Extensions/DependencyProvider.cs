@@ -12,20 +12,20 @@ namespace FluentHelium.Module
             provider.Resolve(typeof (T)).Select(o => (T)o);
 
         public static readonly IDependencyProvider Empty =
-            new DependencyProviderImpl(t => throw new NotImplementedException(t.Name), ImmutableHashSet<Type>.Empty);
+            new Implementation(t => throw new NotImplementedException(t.Name), ImmutableHashSet<Type>.Empty);
 
         public static IDependencyProvider Restrict(this IDependencyProvider provider, IEnumerable<Type> restrictions)
         {
             var r = restrictions.ToImmutableHashSet();
             if (r.Count > 0 && !provider.Dependencies.IsSupersetOf(r))
                 throw new ArgumentException($"Not all restrictions are supported by base provider");
-            return new DependencyProviderImpl(provider.Resolve, r);
+            return new Implementation(provider.Resolve, r);
         }
 
         public static IDependencyProvider Except(this IDependencyProvider provider, IEnumerable<Type> exceptions)
         {
             var e = exceptions.ToImmutableHashSet();
-            return new DependencyProviderImpl(provider.Resolve, provider.Dependencies.Except(e));
+            return new Implementation(provider.Resolve, provider.Dependencies.Except(e));
         }
 
         public static IDependencyProvider Union(this IDependencyProvider left, IDependencyProvider right)
@@ -34,13 +34,13 @@ namespace FluentHelium.Module
             if (m.Count > 0)
                 throw new ArgumentException(
                     $"left provider contains same dependecies as right:{string.Join(";", m.Select(t => t.Name))}");
-            return new DependencyProviderImpl(
+            return new Implementation(
                 t => left.Dependencies.Contains(t) ? left.Resolve(t) : right.Resolve(t), 
                 left.Dependencies.Union(right.Dependencies));
         }
 
         public static IDependencyProvider ToDependencyProvider(this IImmutableSet<Type> types, Func<Type, Usable<object>> resolver) =>
-            new DependencyProviderImpl(resolver, types);
+            new Implementation(resolver, types);
 
         public static IDependencyProvider ToDependencyProvider(this IEnumerable<Type> types, Func<Type, Usable<object>> resolver) =>
             types.ToImmutableHashSet().ToDependencyProvider(resolver);
@@ -53,5 +53,22 @@ namespace FluentHelium.Module
 
         public static string ToString(this IDependencyProvider provider) =>
             $"DependencyProvider({provider.Dependencies.Count}){{{string.Join("; ", provider.Dependencies.Select(t => t.Name))}}}";
+
+        private sealed class Implementation : IDependencyProvider
+        {
+            public Implementation(Func<Type, Usable<object>> resolver, IImmutableSet<Type> dependencies)
+            {
+                _resolver = resolver;
+                Dependencies = dependencies;
+            }
+
+            public Usable<object> Resolve(Type type) => _resolver(type);
+
+            public IImmutableSet<Type> Dependencies { get; }
+
+            public override string ToString() => DependencyProvider.ToString(this);
+
+            private readonly Func<Type, Usable<object>> _resolver;
+        }
     }
 }

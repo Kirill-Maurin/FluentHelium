@@ -8,10 +8,7 @@ namespace FluentHelium.Module
 {
     internal sealed class MultipleDependencyBuilder : IModuleDependencyBuilder
     {
-        internal MultipleDependencyBuilder(IModuleDependencyBuilder fallback)
-        {
-            _fallback = fallback;
-        }
+        internal MultipleDependencyBuilder(IModuleDependencyBuilder fallback) => _fallback = fallback;
 
         public IModuleInputDependency Build(
             IModuleDescriptor client,
