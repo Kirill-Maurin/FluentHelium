@@ -5,70 +5,55 @@ namespace FluentHelium.Module
 {
     public static class Option
     {
-        public static Option<T> ToJust<T>( this T value ) => new Option<T>( value );
-        public static RefOption<T> ToRefJust<T>( this T value ) where T : class => new RefOption<T>( value );
-        public static RefOption<T> ToRefOption<T>([AllowNull]this T source) where T : class => source?.ToRefJust() ?? RefOption<T>.Nothing;
-        public static Option<T> ToOption<T>([AllowNull]this T source) where T : class => source?.ToJust() ?? Option<T>.Nothing;
-        public static Option<T> ToOption<T>([AllowNull]this T? source) where T : struct => source?.ToJust() ?? Option<T>.Nothing;
-        public static T? ToNullable<T>(this T source) where T : struct => source;
+        public static Option<T, RefOption<T>> From<T>(T value) where T : class => RefOption.From(value);
+        public static Option<T, ValOption<T>> From<T>(T? value) where T : struct => ValOption.From(value);
+        public static RefOption<T> ToOption<T>([AllowNull]this T source) where T : class => From(source);
+        public static ValOption<T> ToOption<T>([AllowNull]this T? source) where T : struct => From(source);
+        public static T? AsNullable<T>(this T source) where T : struct => source;
 
-        public static Option<TOutput> Select<T, TOutput>(this Option<T> option, Func<T, TOutput> selector)
-            => option.GetValue(Unit.Value, (s, v) => selector(v).ToJust(), Option<TOutput>.Nothing);
-        public static Option<TOutput> SelectMany<T, TOutput>(this Option<T> option, Func<T, Option<TOutput>> selector)
-            => option.GetValue(Unit.Value, (s, v) => selector(v), Option<TOutput>.Nothing );
+        public static T GetValue<T, TO>(this Option<T, TO> option, T fallback) 
+            where TO : struct, IOption<T, TO> 
+            => option.TryGet(out var value) ? value : fallback;
+        public static T GetValue<T>(this ValOption<T> option, T fallback) 
+            where T : struct 
+            => option.TryGet(out var value) ? value : fallback;
+        public static T GetValue<T>(this RefOption<T> option, T fallback)
+            where T : class
+            => option.TryGet(out var value) ? value : fallback;
+
+        public static Option<TOutput, ValOption<TOutput>> Select<T, TO, TOutput>(this Option<T, TO> option, Func<T, TOutput?> selector) 
+            where TOutput : struct 
+            where TO : struct, IOption<T, TO> 
+            => option.TryGet(out var value) ? selector(value).ToOption() : default;
+
+        public static Option<TOutput, RefOption<TOutput>> Select<T, TO, TOutput>(this Option<T, TO> option, Func<T, TOutput> selector)
+            where TOutput : class
+            where TO : struct, IOption<T, TO>
+            => option.TryGet(out var value) ? selector(value).ToOption() : default;
+
+        public static Option<TOutput, ValOption<TOutput>> SelectValue<T, TO, TOutput>(this Option<T, TO> option, Func<T, TOutput> selector)
+            where TOutput : struct
+            where TO : struct, IOption<T, TO>
+            => option.TryGet(out var value) ? selector(value).ToValJust() : default;
+
+        public static Option<TOutput, TOutputO> SelectMany<T, TOutput, TO, TOutputO>(this Option<T, TO> option, Func<T, Option<TOutput, TOutputO>> selector) 
+            where TO : struct, IOption<T, TO>
+            where TOutputO : struct, IOption<TOutput, TOutputO>
+            => option.TryGet(out var value) ? selector(value) : default;
     }
 
-    public interface IOption<T>
+    public struct Option<T, TO> : IOption<T, TO> where TO : struct, IOption<T, TO>
     {
-        bool HasValue { get; }
-        TOutput GetValue<TState, TOutput>(TState state, Func<TState, T, TOutput> selector, Func<TState, TOutput> fallback);
-        TOutput GetValue<TState, TOutput>(TState state, Func<TState, T, TOutput> selector, TOutput fallback);
-        T GetValue(T fallback);
-    }
+        public Option(TO value) => Inner = value;
 
-    /// <summary>
-    /// Safe universal nullable (by design)
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public readonly struct Option<T> : IOption<T>
-    {
-        internal Option(T value) => _value = new Value<T>(value);
+        public bool TryGet([AllowNull]out T value) => Inner.TryGet(out value);
 
-        private readonly Value<T>? _value;
+        public TO Just(T value) => default(TO).Just(value);
 
-        public static Option<T> Nothing { get; } = new Option<T>();
+        public TO Inner { get; }
 
-        public bool HasValue => _value.HasValue;
+        public static implicit operator TO(Option<T, TO> option) => option.Inner;
 
-        public TOutput GetValue<TState, TOutput>(TState state, Func<TState, T, TOutput> selector, Func<TState, TOutput> fallback) 
-            => _value.HasValue ? selector(state, _value.Value.Unwrap) : fallback(state);
-
-        public TOutput GetValue<TState, TOutput>(TState state, Func<TState, T, TOutput> selector, TOutput fallback)
-            => _value.HasValue ? selector(state, _value.Value.Unwrap) : fallback;
-
-        public T GetValue(T fallback) => _value.HasValue ? _value.Value.Unwrap : fallback;
-
-        public override string ToString() => GetValue(Unit.Value, (s, v) => $"Option{{{v}}}", s => $"Nothing<{nameof(T)}>");
-    }
-
-    public struct RefOption<T> where T: class
-    {
-        internal RefOption(T value) => _value = value;
-
-        private readonly T _value;
-
-        public static RefOption<T> Nothing { get; } = new RefOption<T>();
-
-        public bool HasValue => _value != null;
-        public T GetValue( T fallback ) => _value ?? fallback;
-
-        public override string ToString() => _value != null ? $"Option{{{_value}}}" : $"Nothing<{nameof( T )}>";
-    }
-
-    public readonly struct Value<T>
-    {
-        internal Value( T value ) => Unwrap = value;
-
-        public T Unwrap { get; }
+        public static implicit operator Option<T, TO>(TO option) => new Option<T, TO>(option);
     }
 }

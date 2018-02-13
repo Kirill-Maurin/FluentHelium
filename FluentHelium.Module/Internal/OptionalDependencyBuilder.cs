@@ -16,7 +16,7 @@ namespace FluentHelium.Module
             if (!@interface.IsConstructedGenericType)
                 return _fallback.Build(client, @interface, implementations);
             var t = @interface.GetGenericTypeDefinition();
-            if (t != typeof(Option<>))
+            if (t != typeof(ValOption<>) && t != typeof(RefOption<>) && t != typeof(Option<,>))
                 return _fallback.Build(client, @interface, implementations);
             var parameter = @interface.GenericTypeArguments[0];
             var implementation = implementations[parameter].FirstOrDefault();

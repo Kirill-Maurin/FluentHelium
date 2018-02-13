@@ -80,7 +80,7 @@ namespace FluentHelium.Module.Tests
             Given(() =>
             {
                 var a = typeof(object).ToModuleDescriptor("A", typeof(int)).ToModule(d => d.ToUsable());
-                var b = typeof(Option<int>).ToModuleDescriptor("B", typeof(double)).ToModule(d => d.ToUsable());
+                var b = typeof(ValOption<int>).ToModuleDescriptor("B", typeof(double)).ToModule(d => d.ToUsable());
                 return new[] {a, b};
             }).
             When(_ => _.
@@ -116,7 +116,7 @@ namespace FluentHelium.Module.Tests
             Given(() =>
             {
                 var a = CreateSimpleModule("A", () => 42);
-                var b = CreateSimpleModule<Option<int>, double>("B", i => i.GetValue(24));
+                var b = CreateSimpleModule<ValOption<int>, double>("B", i => i.GetValue(24));
                 return new[] {a, b};
             }).
             When(_ => _.
@@ -133,7 +133,7 @@ namespace FluentHelium.Module.Tests
         public void OptionDependencyValueFailResolveTest() => 
             Given(() =>
             {
-                var b = CreateSimpleModule<Option<int>, double>("B", i => i.GetValue(24));
+                var b = CreateSimpleModule<ValOption<int>, double>("B", i => i.GetValue(24));
                 return new[] { b };
             }).
             When(_ => _.
@@ -141,7 +141,7 @@ namespace FluentHelium.Module.Tests
                 ToModuleGraph(Optional.Or(Simple).ToBuilder(External)).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
-                    Option<int>.Nothing.ToDependencyProvider()).
+                    default(ValOption<int>).ToDependencyProvider()).
                 GetProvider(_[0].Descriptor).
                 Unwrap(p => p.Resolve<double>())).
             Then(_ => _.Do(v => v.Should().Be(24)));
@@ -151,7 +151,7 @@ namespace FluentHelium.Module.Tests
             Given(() =>
             {
                 var a = CreateSimpleModule<object>("A", () => 42);
-                var b = CreateSimpleModule<Option<object>, double>("B", i => (int)i.GetValue(24));
+                var b = CreateSimpleModule<RefOption<object>, double>("B", i => (int)i.GetValue(24));
                 return new[] { a, b };
             }).
             When(_ => _.
@@ -168,7 +168,7 @@ namespace FluentHelium.Module.Tests
         public void OptionDependencyRefFailResolveTest() => 
             Given(() =>
             {
-                var b = CreateSimpleModule<Option<object>, double>("B", i => (int)i.GetValue(24));
+                var b = CreateSimpleModule<RefOption<object>, double>("B", i => (int)i.GetValue(24));
                 return new[] { b };
             }).
             When(_ => _.
@@ -185,7 +185,7 @@ namespace FluentHelium.Module.Tests
         public void OptionDependencyFailTest() => 
             Given(() =>
             {
-                var a = typeof(Option<object>).ToModuleDescriptor("A", typeof(int)).ToModule(d => d.ToUsable());
+                var a = typeof(RefOption<object>).ToModuleDescriptor("A", typeof(int)).ToModule(d => d.ToUsable());
                 var b = typeof(int).ToModuleDescriptor("B", typeof(double)).ToModule(d => d.ToUsable());
                 return new[] { a, b };
             }).
@@ -193,7 +193,7 @@ namespace FluentHelium.Module.Tests
                 Select(m => m.Descriptor).
                 ToModuleGraph(Optional.Or(Simple).ToBuilder(External))).
             Then(_ => _.Input.Count.Should().Be(1)).
-                And(_ => _.Input.First().Key.Should().Be(typeof(Option<object>))).
+                And(_ => _.Input.First().Key.Should().Be(typeof(RefOption<object>))).
                 And(_ => _.Input.First().Count().Should().Be(1)).
                 And(_ => _.Output.First().Key.Should().Be(typeof(int))).
                 And(_ => _.Output.Count.Should().Be(2));

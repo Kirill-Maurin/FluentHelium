@@ -8,18 +8,18 @@ namespace FluentHelium.Module.Tests
     {
         [Fact]
         public void GivenReferenceNull_WhenToOption_ThenHasNoValue() 
-            => Given((object)null).When(_ => _.ToOption()).Then(_ => _.HasValue.Should().BeFalse());
+            => Given((object)null).When(_ => _.ToOption()).Then(_ => _.TryGet(out var _).Should().BeFalse());
 
         [Fact]
         public void GivenReferenceNotNull_WhenToOption_ThenHasValue() 
-            => Given(new object()).When(_ => _.ToOption()).Then(_ => _.HasValue.Should().BeTrue());
+            => Given(new object()).When(_ => _.ToOption().Generic.SelectMany(o => o.ToString().ToRefJust())).Then(_ => _.TryGet(out var _).Should().BeTrue());
 
         [Fact]
         public void GivenValueNull_WhenToOption_ThenHasNoValue()
-            => Given((int?)null).When(_ => _.ToOption()).Then(_ => _.HasValue.Should().BeFalse());
+            => Given((int?)null).When(_ => _.ToOption()).Then(_ => _.TryGet(out var _).Should().BeFalse());
 
         [Fact]
         public void GivenValueNotNull_WhenToOption_ThenHasValue() 
-            => Given((int?)0).When(_ => _.ToOption()).Then(_ => _.HasValue.Should().BeTrue());
+            => Given((int?)0).When(_ => _.ToOption()).Then(_ => _.TryGet(out var _).Should().BeTrue());
     }
 }
