@@ -4,9 +4,10 @@ namespace FluentHelium.Module
 {
     public static class ValOption
     {
-        public static ValOption<T> From<T>(T? value) where T : struct => new ValOption<T>(value);
-        public static ValOption<T> Just<T>(T value) where T : struct => new ValOption<T>(value);
-        public static Option<T, ValOption<T>> ToValJust<T>(this T value) where T : struct => Just(value);
+        public static ValOption<T> ToValOption<T>([AllowNull]this T? value) where T : struct => From(value);
+        public static ValOption<T> From<T>([AllowNull]T? value) where T : struct => new ValOption<T>(value);
+        public static ValOption<T> Some<T>(T value) where T : struct => new ValOption<T>(value);
+        public static Option<T, ValOption<T>> ToValSome<T>(this T value) where T : struct => Some(value);
     }
 
     /// <summary>
@@ -27,12 +28,12 @@ namespace FluentHelium.Module
             return result;
         }
 
-        public ValOption<T> Just(T value) => new ValOption<T>(value);
+        public ValOption<T> Some(T value) => new ValOption<T>(value);
 
         public static explicit operator ValOption<T>(Option<T, ValOption<T>> option) => option.Inner;
 
         public static explicit operator Option<T, ValOption<T>>(ValOption<T> option) => new Option<T, ValOption<T>>(option);
 
-        public override string ToString() => TryGet(out var v) ? $"Just{{{v}}}" : $"Nothing<{nameof(T)}>";
+        public override string ToString() => TryGet(out var v) ? $"Some{{{v}}}" : $"None<{nameof(T)}>";
     }
 }

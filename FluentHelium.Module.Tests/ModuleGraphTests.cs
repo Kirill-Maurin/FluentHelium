@@ -176,7 +176,7 @@ namespace FluentHelium.Module.Tests
                 ToModuleGraph(Optional.Or(Simple).ToBuilder(External)).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
-                    ((object)null).ToOption().ToDependencyProvider()).
+                    ((object)null).ToRefOption().ToDependencyProvider()).
                 GetProvider(_[0].Descriptor).
                 Unwrap(p => p.Resolve<double>())).
             Then(_ => _.Do(v => v.Should().Be(24)));

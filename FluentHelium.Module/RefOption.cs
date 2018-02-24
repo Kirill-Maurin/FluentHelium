@@ -4,14 +4,17 @@ namespace FluentHelium.Module {
 
     public static class RefOption
     {
-        public static Option<T, RefOption<T>> ToRefJust<T>(this T value) where T : class => Just(value);
-        public static RefOption<T> From<T>([AllowNull]T value) where T: class => new RefOption<T>(value);
-        public static RefOption<T> Just<T>(T value) where T : class => From(value);
+        public static RefOption<T> ToRefOption<T>([AllowNull]this T value) where T : class => From(value);
+        public static Option<T, RefOption<T>> ToRefSome<T>(this T value) where T : class => Some(value);
+        public static RefOption<T> Some<T>(T value) where T : class => From(value);
+        public static RefOption<T> From<T>([AllowNull]T value) where T : class => RefOption<T>.From(value);
     }
 
     public struct RefOption<T> : IOption<T, RefOption<T>> where T: class
     {
-        internal RefOption(T value) => _value = value;
+        public static RefOption<T> From([AllowNull]T value) => new RefOption<T>(value);
+
+        private RefOption(T value) => _value = value;
 
         private readonly T _value;
 
@@ -23,13 +26,13 @@ namespace FluentHelium.Module {
             return _value != null;
         }
 
-        public RefOption<T> Just(T value) => new RefOption<T>(value);
+        public RefOption<T> Some(T value) => new RefOption<T>(value);
         public Option<T, RefOption<T>> Generic => new Option<T, RefOption<T>>(this);
 
         public static explicit operator RefOption<T>(Option<T, RefOption<T>> option) => option.Inner;
 
         public static explicit operator Option<T, RefOption<T>>(RefOption<T> option) => new Option<T, RefOption<T>>(option);
 
-        public override string ToString() => _value != null ? $"Just{{{_value}}}" : $"Nothing<{nameof( T )}>";
+        public override string ToString() => _value != null ? $"Some{{{_value}}}" : $"None<{nameof( T )}>";
     }
 }

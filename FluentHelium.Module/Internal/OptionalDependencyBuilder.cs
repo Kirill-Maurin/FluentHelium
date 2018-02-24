@@ -28,13 +28,22 @@ namespace FluentHelium.Module
                     client,
                     @interface,
                     provider => provider(implementation).Resolve(parameter).Select(
-                        o => CreateOption(o, parameter)));
+                        o => CreateOption(t, o, parameter)));
         }
 
-        private object CreateOption(object o, Type t) =>
-            typeof(Option).
+        private Type GetOptionType(Type option)
+        {
+            if (option == typeof(ValOption<>))
+                return typeof(ValOption);
+            if (option == typeof(RefOption<>))
+                return typeof(RefOption);
+            return typeof(Option);
+        }
+
+        private object CreateOption(Type option, object o, Type t) =>
+            GetOptionType(option).
                 GetTypeInfo().
-                GetDeclaredMethods(nameof(Option.ToOption)).
+                GetDeclaredMethods(nameof(Option.From)).
                 Where(m => m.IsGenericMethod).
                 First(m =>
                 {

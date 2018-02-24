@@ -46,7 +46,7 @@ namespace FluentHelium.Module
         public static TOutputResult Select<T, TOutput, TResult, TOutputResult>(this TResult result, Func<T, TOutput> selector) 
             where TResult: struct, IResult<T>
             where TOutputResult: struct, IResult<TOutput, Exception, TOutputResult>
-            => result.TryGet(out var value, out var error) ? default(TOutputResult).Just(selector(value)) : default(TOutputResult).Failure(error);
+            => result.TryGet(out var value, out var error) ? default(TOutputResult).Some(selector(value)) : default(TOutputResult).Failure(error);
             
 
         public static Result<TOutput> AndTry<T, TOutput>(this Result<T> result, Func<T, TOutput> selector) =>
@@ -169,7 +169,7 @@ namespace FluentHelium.Module
         }
 
         public override string ToString() => IsFail ? $"Error{{{InternalError}}}": $"Success{{{InternalValue}}}";
-        public Result<T> Just(T value) => new Result<T>(value);
+        public Result<T> Some(T value) => new Result<T>(value);
         public Result<T> Failure(Exception error) => new Result<T>(error);
     }
 }

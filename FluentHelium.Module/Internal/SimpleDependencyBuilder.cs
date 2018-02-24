@@ -9,10 +9,7 @@ namespace FluentHelium.Module
     /// </summary>
     internal sealed class SimpleDependencyBuilder : IModuleDependencyBuilder
     {
-        internal SimpleDependencyBuilder(IModuleDependencyBuilder fallback)
-        {
-            _fallback = fallback;
-        }
+        internal SimpleDependencyBuilder(IModuleDependencyBuilder fallback) => _fallback = fallback;
 
         public IModuleInputDependency Build(
             IModuleDescriptor client,

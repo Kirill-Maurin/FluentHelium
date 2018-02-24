@@ -5,10 +5,10 @@ namespace FluentHelium.Module
 {
     public static class Option
     {
-        public static Option<T, RefOption<T>> From<T>(T value) where T : class => RefOption.From(value);
-        public static Option<T, ValOption<T>> From<T>(T? value) where T : struct => ValOption.From(value);
-        public static RefOption<T> ToOption<T>([AllowNull]this T source) where T : class => From(source);
-        public static ValOption<T> ToOption<T>([AllowNull]this T? source) where T : struct => From(source);
+        public static Option<T, RefOption<T>> From<T>([AllowNull]T value) where T : class => RefOption.From(value);
+        public static Option<T, ValOption<T>> From<T>([AllowNull]T? value) where T : struct => ValOption.From(value);
+        public static Option<T, RefOption<T>> ToOption<T>([AllowNull]this T source) where T : class => From(source);
+        public static Option<T, ValOption<T>> ToOption<T>([AllowNull]this T? source) where T : struct => From(source);
         public static T? AsNullable<T>(this T source) where T : struct => source;
 
         public static T GetValue<T, TO>(this Option<T, TO> option, T fallback) 
@@ -34,7 +34,7 @@ namespace FluentHelium.Module
         public static Option<TOutput, ValOption<TOutput>> SelectValue<T, TO, TOutput>(this Option<T, TO> option, Func<T, TOutput> selector)
             where TOutput : struct
             where TO : struct, IOption<T, TO>
-            => option.TryGet(out var value) ? selector(value).ToValJust() : default;
+            => option.TryGet(out var value) ? selector(value).ToValSome() : default;
 
         public static Option<TOutput, TOutputO> SelectMany<T, TOutput, TO, TOutputO>(this Option<T, TO> option, Func<T, Option<TOutput, TOutputO>> selector) 
             where TO : struct, IOption<T, TO>
@@ -48,7 +48,7 @@ namespace FluentHelium.Module
 
         public bool TryGet([AllowNull]out T value) => Inner.TryGet(out value);
 
-        public TO Just(T value) => default(TO).Just(value);
+        public TO Some(T value) => default(TO).Some(value);
 
         public TO Inner { get; }
 

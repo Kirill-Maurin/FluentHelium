@@ -72,7 +72,7 @@ namespace FluentHelium.Bdd
 
         public static ThenResult<T, TMock> Then<T, TMock>(this WhenResult<T, TMock> whenResult, Action<T, TMock> then)
         {
-            var result = whenResult.Result.Unwrap(CreateThenException);
+            var result = whenResult.Result.Unwrap(e => CreateThenException(e));
             then(result, whenResult.Mock);
             return new ThenResult<T, TMock>(result, whenResult.Mock);
         }

@@ -62,7 +62,10 @@ namespace FluentHelium.Module
                 Dependencies = dependencies;
             }
 
-            public Usable<object> Resolve(Type type) => _resolver(type);
+            public Usable<object> Resolve(Type type) 
+                => Dependencies.Contains(type) 
+                ? _resolver(type) 
+                : throw new ArgumentException($"Dependency provider don't support type {type.Name}", nameof(type));
 
             public IImmutableSet<Type> Dependencies { get; }
 

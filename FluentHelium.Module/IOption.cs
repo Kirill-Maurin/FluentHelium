@@ -2,7 +2,7 @@
 {
     public interface IOption<T, out TOption> : IOption<T> where TOption: struct, IOption<T, TOption>
     {
-        TOption Just(T value);
+        TOption Some(T value);
     }
 
     public interface IOption<T>

@@ -12,7 +12,7 @@ namespace FluentHelium.Module.Tests
 
         [Fact]
         public void GivenReferenceNotNull_WhenToOption_ThenHasValue() 
-            => Given(new object()).When(_ => _.ToOption().Generic.SelectMany(o => o.ToString().ToRefJust())).Then(_ => _.TryGet(out var _).Should().BeTrue());
+            => Given(new object()).When(_ => _.ToOption().SelectMany(o => o.ToString().ToRefSome())).Then(_ => _.TryGet(out var _).Should().BeTrue());
 
         [Fact]
         public void GivenValueNull_WhenToOption_ThenHasNoValue()
