@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FluentHelium.Module
+namespace FluentHelium.Base
 {
     public static class ChainOfResponsibility
     {

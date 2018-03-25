@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using FluentHelium.Base;
 
 namespace FluentHelium.Module
 {

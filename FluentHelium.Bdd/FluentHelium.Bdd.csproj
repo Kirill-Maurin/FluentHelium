@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <ProjectReference Include="..\FluentHelium.Module\FluentHelium.Module.csproj" />
+    <ProjectReference Include="..\FluentHelium.Base\FluentHelium.Base.csproj" />
   </ItemGroup>
 </Project>

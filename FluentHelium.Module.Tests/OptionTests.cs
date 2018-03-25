@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentHelium.Base;
 using Xunit;
 using static FluentHelium.Bdd.GivenWhenThenExtensions;
 
@@ -21,5 +22,13 @@ namespace FluentHelium.Module.Tests
         [Fact]
         public void GivenValueNotNull_WhenToOption_ThenHasValue() 
             => Given((int?)0).When(_ => _.ToOption()).Then(_ => _.TryGet(out var _).Should().BeTrue());
+
+        [Fact]
+        public void GivenCanceledTask_WhenCanceledToNone_ThenNotCanceled()
+            => Given(TaskExtensions.Canceled<object>())
+                .When(async _ => await _.CanceledToNone())
+                .Then(_ => _.IsCompleted.Should().BeTrue())
+                    .And(_ => _.IsCanceled.Should().BeFalse())
+                    .And(_ => _.Result.TryGet(out var _).Should().BeFalse());
     }
 }

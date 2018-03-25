@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using FluentHelium.Base;
 using static FluentHelium.Module.DependencyBuilder;
 
 namespace FluentHelium.Module
@@ -164,7 +165,7 @@ namespace FluentHelium.Module
                     d => d.IsExternal() ? kernel : providers[d]));
                 var result = modules[module].Activate(inputProvider);
                 activated.Push(result);
-                providers[module] = result.Value;
+                result.Do(p => providers[module] = p);
             }
 
             return ((IReadOnlyDictionary<IModuleDescriptor, IDependencyProvider>)providers).ToUsable(() =>
@@ -203,7 +204,7 @@ namespace FluentHelium.Module
                     Select(t => t.LinkValue(p.Key))).
                 ToLookup(p => p.Key, p => p.Value);
             return moduleList.TryTopologySort(
-                m => inner.GetValueOrDefault(m)?.Links.Select(l => l.Key).Where(i => !i.IsExternal()) ?? Enumerable.Empty<IModuleDescriptor>(),
+                m => ImmutableDictionaryExtensions.GetValueOrDefault(inner, m)?.Links.Select(l => l.Key).Where(i => !i.IsExternal()) ?? Enumerable.Empty<IModuleDescriptor>(),
                 out var order)
                 ? CreateSortedModuleGraph(order, inner, inputs, outputs)
                 : CreateModuleGraphWithCycle(inner, inputs, outputs, order);

@@ -1,6 +1,6 @@
 ﻿using System.Reactive.Subjects;
 
-namespace FluentHelium.Module
+namespace FluentHelium.Base
 {
     /// <summary>
     /// Mutable reactive property

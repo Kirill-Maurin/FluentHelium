@@ -1,5 +1,5 @@
 using System;
-using FluentHelium.Module;
+using FluentHelium.Base;
 using NullGuard;
 
 namespace FluentHelium.Bdd
@@ -20,7 +20,7 @@ namespace FluentHelium.Bdd
             new WhenResult<TResult, TMock>(givenResult.Result.Try(r => when(r, givenResult.Mock)), givenResult.Mock);
 
         public static WhenResult<TResult, TMock> And<T, TMock, TResult>(this WhenResult<T, TMock> whenResult, Func<T, TMock, TResult> and) =>
-            new WhenResult<TResult, TMock>(whenResult.Result.AndTry(r => and(r, whenResult.Mock)), whenResult.Mock);
+            new WhenResult<TResult, TMock>(whenResult.Result.Try(r => and(r, whenResult.Mock)), whenResult.Mock);
 
         public static WhenResult<T, TMock> When<T, TMock>(this GivenResult<T, TMock> givenResult, Action<T> when) 
             => givenResult.When(o => 
@@ -37,7 +37,7 @@ namespace FluentHelium.Bdd
             });
 
         public static WhenResult<T, TMock> And<T, TMock>(this WhenResult<T, TMock> whenResult, Action<T, TMock> and) 
-            => new WhenResult<T, TMock>(whenResult.Result.AndTry(r => and(r, whenResult.Mock)), whenResult.Mock);
+            => new WhenResult<T, TMock>(whenResult.Result.Try(r => and(r, whenResult.Mock)), whenResult.Mock);
 
         public static GivenResult<T, TMock> And<T, TMock>(this GivenResult<T, TMock> givenResult, Action<T> and)
         {

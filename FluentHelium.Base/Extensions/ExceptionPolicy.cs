@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace FluentHelium.Module
+namespace FluentHelium.Base
 {
     public static class ExceptionPolicy
     {

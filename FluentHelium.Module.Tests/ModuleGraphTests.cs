@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using FluentAssertions;
+using FluentHelium.Base;
 using Xunit;
 using static FluentHelium.Bdd.GivenWhenThenExtensions;
 using static FluentHelium.Module.DependencyBuilder;
@@ -80,7 +81,7 @@ namespace FluentHelium.Module.Tests
             Given(() =>
             {
                 var a = typeof(object).ToModuleDescriptor("A", typeof(int)).ToModule(d => d.ToUsable());
-                var b = typeof(ValOption<int>).ToModuleDescriptor("B", typeof(double)).ToModule(d => d.ToUsable());
+                var b = typeof(Option<int>).ToModuleDescriptor("B", typeof(double)).ToModule(d => d.ToUsable());
                 return new[] {a, b};
             }).
             When(_ => _.
@@ -116,7 +117,7 @@ namespace FluentHelium.Module.Tests
             Given(() =>
             {
                 var a = CreateSimpleModule("A", () => 42);
-                var b = CreateSimpleModule<ValOption<int>, double>("B", i => i.GetValue(24));
+                var b = CreateSimpleModule<Option<int>, double>("B", i => i.GetValue(24));
                 return new[] {a, b};
             }).
             When(_ => _.
@@ -133,7 +134,7 @@ namespace FluentHelium.Module.Tests
         public void OptionDependencyValueFailResolveTest() => 
             Given(() =>
             {
-                var b = CreateSimpleModule<ValOption<int>, double>("B", i => i.GetValue(24));
+                var b = CreateSimpleModule<Option<int>, double>("B", i => i.GetValue(24));
                 return new[] { b };
             }).
             When(_ => _.
@@ -141,7 +142,7 @@ namespace FluentHelium.Module.Tests
                 ToModuleGraph(Optional.Or(Simple).ToBuilder(External)).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
-                    default(ValOption<int>).ToDependencyProvider()).
+                    default(Option<int>).ToDependencyProvider()).
                 GetProvider(_[0].Descriptor).
                 Unwrap(p => p.Resolve<double>())).
             Then(_ => _.Do(v => v.Should().Be(24)));

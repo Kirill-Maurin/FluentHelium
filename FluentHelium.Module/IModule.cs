@@ -1,3 +1,5 @@
+using FluentHelium.Base;
+
 namespace FluentHelium.Module
 {
     /// <summary>

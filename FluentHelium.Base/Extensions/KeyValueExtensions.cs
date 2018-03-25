@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using NullGuard;
 
-namespace FluentHelium.Module
+namespace FluentHelium.Base
 {
     public static class KeyValueExtensions
     {

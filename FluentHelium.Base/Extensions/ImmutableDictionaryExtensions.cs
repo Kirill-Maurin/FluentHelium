@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace FluentHelium.Module
+namespace FluentHelium.Base
 {
     public static class ImmutableDictionaryExtensions
     {

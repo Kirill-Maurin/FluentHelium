@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using FluentHelium.Base;
 
 namespace FluentHelium.Module
 {

@@ -1,4 +1,4 @@
-﻿namespace FluentHelium.Module
+﻿namespace FluentHelium.Base
 {
     public interface IOption<T, out TOption> : IOption<T> where TOption: struct, IOption<T, TOption>
     {

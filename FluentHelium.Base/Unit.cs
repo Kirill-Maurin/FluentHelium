@@ -1,4 +1,4 @@
-namespace FluentHelium.Module {
+namespace FluentHelium.Base {
 	/// <summary>
 	/// Null-size type, you can use it for argument or return value
 	/// </summary>

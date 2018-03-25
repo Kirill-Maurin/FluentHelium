@@ -1,6 +1,7 @@
 ﻿using System;
 using Autofac;
 using FluentAssertions;
+using FluentHelium.Base;
 using FluentHelium.Module;
 using NSubstitute;
 using Xunit;

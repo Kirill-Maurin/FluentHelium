@@ -2,4 +2,7 @@
   <ItemGroup>
     <PackageReference Include="System.Linq.Parallel" Version="4.3.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FluentHelium.Base\FluentHelium.Base.csproj" />
+  </ItemGroup>
 </Project>

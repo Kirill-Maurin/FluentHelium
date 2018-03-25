@@ -1,5 +1,6 @@
 ﻿using System;
 using Autofac;
+using FluentHelium.Base;
 using FluentHelium.Module;
 
 namespace FluentHelium.Autofac

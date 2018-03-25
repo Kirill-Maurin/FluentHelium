@@ -6,14 +6,16 @@
     <DebugSymbols>true</DebugSymbols>
     <LangVersion>latest</LangVersion>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <IntermediateOutputPath>$(SolutionDir)\.obj\$(Configuration)\$(MSBuildProjectName)\</IntermediateOutputPath>
-    <OutputPath>$(SolutionDir)\.bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>$(SolutionDir)\.build\obj\$(Configuration)\$(MSBuildProjectName)\</IntermediateOutputPath>
+    <OutputPath>$(SolutionDir)\.build\$(Configuration)\</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
     <UseCommonOutputDirectory>True</UseCommonOutputDirectory>  
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Collections.Immutable" Version="1.4.0" />
     <PackageReference Include="System.Reactive" Version="3.0.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />
   </ItemGroup>
   <Choose>
     <When Condition="$(MSBuildProjectName.EndsWith('Tests'))">

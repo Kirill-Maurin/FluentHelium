@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using FluentHelium.Base;
 
 namespace FluentHelium.Module
 {
@@ -16,7 +17,7 @@ namespace FluentHelium.Module
             if (!@interface.IsConstructedGenericType)
                 return _fallback.Build(client, @interface, implementations);
             var t = @interface.GetGenericTypeDefinition();
-            if (t != typeof(ValOption<>) && t != typeof(RefOption<>) && t != typeof(Option<,>))
+            if (t != typeof(Option<>) && t != typeof(RefOption<>) && t != typeof(Option<,>))
                 return _fallback.Build(client, @interface, implementations);
             var parameter = @interface.GenericTypeArguments[0];
             var implementation = implementations[parameter].FirstOrDefault();
@@ -33,11 +34,9 @@ namespace FluentHelium.Module
 
         private Type GetOptionType(Type option)
         {
-            if (option == typeof(ValOption<>))
-                return typeof(ValOption);
-            if (option == typeof(RefOption<>))
-                return typeof(RefOption);
-            return typeof(Option);
+            if (option == typeof(Option<>))
+                return typeof(Option);
+            return option == typeof(RefOption<>) ? typeof(RefOption) : typeof(Option<,>);
         }
 
         private object CreateOption(Type option, object o, Type t) =>

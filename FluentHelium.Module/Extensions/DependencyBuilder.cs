@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using FluentHelium.Base;
 
 namespace FluentHelium.Module
 {

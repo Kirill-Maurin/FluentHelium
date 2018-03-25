@@ -2,7 +2,7 @@
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace FluentHelium.Module
+namespace FluentHelium.Base
 {
     public static class Property
     {
@@ -12,10 +12,7 @@ namespace FluentHelium.Module
 
     internal sealed class Property<T> : IMutableProperty<T>
     {
-        public Property(T value = default)
-        {
-            _value = value;
-        }
+        public Property(T value = default) => _value = value;
 
         public T Value
         {

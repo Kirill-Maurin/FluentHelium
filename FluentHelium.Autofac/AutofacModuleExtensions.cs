@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Autofac;
 using Autofac.Builder;
+using FluentHelium.Base;
 using FluentHelium.Module;
 
 namespace FluentHelium.Autofac

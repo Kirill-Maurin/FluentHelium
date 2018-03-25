@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentAssertions;
+using FluentHelium.Base;
 using NSubstitute;
 using Xunit;
 using static FluentHelium.Bdd.GivenWhenThenExtensions;

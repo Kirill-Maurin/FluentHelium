@@ -1,4 +1,4 @@
-using FluentHelium.Module;
+using FluentHelium.Base;
 
 namespace FluentHelium.Bdd
 {

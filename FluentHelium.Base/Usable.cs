@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using NullGuard;
 
-namespace FluentHelium.Module
+namespace FluentHelium.Base
 {
     public static class UsableExtensions
     {

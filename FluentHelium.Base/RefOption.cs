@@ -1,6 +1,7 @@
 using NullGuard;
 
-namespace FluentHelium.Module {
+namespace FluentHelium.Base
+{
 
     public static class RefOption
     {
@@ -27,11 +28,11 @@ namespace FluentHelium.Module {
         }
 
         public RefOption<T> Some(T value) => new RefOption<T>(value);
-        public Option<T, RefOption<T>> Generic => new Option<T, RefOption<T>>(this);
+        public Option<T, RefOption<T>> AsGeneric => this;
 
         public static explicit operator RefOption<T>(Option<T, RefOption<T>> option) => option.Inner;
 
-        public static explicit operator Option<T, RefOption<T>>(RefOption<T> option) => new Option<T, RefOption<T>>(option);
+        public static explicit operator Option<T, RefOption<T>>(RefOption<T> option) => option;
 
         public override string ToString() => _value != null ? $"Some{{{_value}}}" : $"None<{nameof( T )}>";
     }

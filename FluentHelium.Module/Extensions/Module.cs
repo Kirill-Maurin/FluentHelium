@@ -1,7 +1,8 @@
 using System;
 using System.Linq;
+using FluentHelium.Base;
 using static FluentHelium.Module.ModuleDescriptor;
-using static FluentHelium.Module.EnumerableExtensions;
+using static FluentHelium.Base.EnumerableExtensions;
 
 namespace FluentHelium.Module
 {

@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace FluentHelium.Module
+namespace FluentHelium.Base
 {
     public static class ExpressionExtensions
     {
