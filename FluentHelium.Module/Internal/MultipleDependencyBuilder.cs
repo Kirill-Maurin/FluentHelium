@@ -46,12 +46,8 @@ namespace FluentHelium.Module
         {
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var e in source)
-            {
-                foreach (var o in e)
-                {
-                    yield return o;
-                }
-            }
+            foreach (var o in e)
+                yield return o;
         }
 
         private object Cast(IEnumerable e, Type type) =>

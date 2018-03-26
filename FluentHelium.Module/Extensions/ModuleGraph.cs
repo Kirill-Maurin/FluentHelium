@@ -22,9 +22,7 @@ namespace FluentHelium.Module
                     GroupBy(l => l.Implementation).
                     SelectMany(g => filter(g.Select(d => d.Output), p.Key, g.Key).
                     Select(t => ToPlantUml(p.Key, g.Key, t))))))
-            {
                 writer.WriteLine(line);
-            }
         }
 
         private static string ToPlantUml(IModuleDescriptor client, IModuleDescriptor implementation, Type type) 
@@ -171,9 +169,7 @@ namespace FluentHelium.Module
             return ((IReadOnlyDictionary<IModuleDescriptor, IDependencyProvider>)providers).ToUsable(() =>
             {
                 while (activated.Count > 0)
-                {
                     activated.Pop().Dispose();
-                }
             });
         }
 

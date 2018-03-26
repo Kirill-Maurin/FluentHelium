@@ -24,9 +24,7 @@ namespace FluentHelium.Autofac
         {
             var dependencies = types.ToArray();
             if (dependencies.Length == 0)
-            {
                 dependencies = module.Descriptor.Output.ToArray();
-            }
             if (!module.Descriptor.Output.IsSupersetOf(dependencies))
                 throw new ArgumentException($"Module {module.Descriptor.Name} doesn't implement at least one of target types", nameof(types));
 
@@ -37,9 +35,7 @@ namespace FluentHelium.Autofac
             builder.Register(c => c.ResolveKeyed<Usable<IDependencyProvider>>(module.Descriptor.Id).Unwrap(r => r)).
                 Keyed<IDependencyProvider>(module.Descriptor.Id);
             foreach (var dependency in dependencies)
-            {
                 builder.RegisterDependency(dependency, c => c.ResolveKeyed<IDependencyProvider>(module.Descriptor.Id).Resolve(dependency));
-            }
         }
 
         public static void RegisterDependency(this ContainerBuilder builder, Type dependency, Func<IComponentContext, Usable<object>> action) =>

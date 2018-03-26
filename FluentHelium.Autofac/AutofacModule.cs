@@ -21,9 +21,7 @@ namespace FluentHelium.Autofac
                 throw new InvalidOperationException($"Module {Descriptor.Name}({Descriptor.Id}) already activated");
             var builder = new ContainerBuilder();
             foreach (var dependency in dependencies.Dependencies)
-            {
                 builder.RegisterDependency(dependency, c => dependencies.Resolve(dependency));
-            }
             _registrator(builder);
             try
             {
