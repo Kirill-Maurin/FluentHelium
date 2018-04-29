@@ -9,18 +9,16 @@ namespace FluentHelium.Module
 {
     internal sealed class MultipleDependencyBuilder : IModuleDependencyBuilder
     {
-        internal MultipleDependencyBuilder(IModuleDependencyBuilder fallback) => _fallback = fallback;
-
-        public IModuleInputDependency Build(
+        public RefOption<IModuleInputDependency> Build(
             IModuleDescriptor client,
             Type @interface,
             ILookup<Type, IModuleDescriptor> implementations)
         {
             if (!@interface.IsConstructedGenericType)
-                return _fallback.Build(client, @interface, implementations);
+                return default;
             var t = @interface.GetGenericTypeDefinition();
             if (t != typeof(IEnumerable<>))
-                return _fallback.Build(client, @interface, implementations);
+                return default;
             var parameter = @interface.GenericTypeArguments[0];
             var enumerables = implementations[@interface].Select(@interface.ToModuleOutputDependency);
             return implementations[parameter].
@@ -39,7 +37,7 @@ namespace FluentHelium.Module
                             Concat(multiplets).
                             ToAggregatedUsable().
                             Select(e => Cast(SelectMany(e), parameter));
-                    });
+                    }).ToRefSome();
         }
 
         private IEnumerable SelectMany(IEnumerable<IEnumerable> source)
@@ -57,7 +55,5 @@ namespace FluentHelium.Module
                 First(m => m.IsGenericMethod).
                 MakeGenericMethod(type).
                 Invoke(null, new[] { (object)e });
-
-        private readonly IModuleDependencyBuilder _fallback;
     }
 }

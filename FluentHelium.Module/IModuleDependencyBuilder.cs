@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using FluentHelium.Base;
 
 namespace FluentHelium.Module
 {
@@ -15,6 +16,6 @@ namespace FluentHelium.Module
         /// <param name="interface">Input interface for resolve</param>
         /// <param name="implementations">Implementations by type</param>
         /// <returns></returns>
-        IModuleInputDependency Build(IModuleDescriptor client, Type @interface, ILookup<Type, IModuleDescriptor> implementations);
+        RefOption<IModuleInputDependency> Build(IModuleDescriptor client, Type @interface, ILookup<Type, IModuleDescriptor> implementations);
     }
 }

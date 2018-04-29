@@ -108,11 +108,7 @@ namespace FluentHelium.Module
             IReadOnlyDictionary<IModuleDescriptor, IModule> descriptor2Module, IModuleDescriptor descriptor, IEnumerable<KeyValuePair<Type, IModuleDescriptor>> output)
         {
             var module2Types = output.ToLookup(g => g.Value, g => g.Key);
-            return descriptor.ToModule(dependencies =>
-            {
-                return graph.Activate(dependencies, descriptor2Module).
-                    Select(p => p.ToDependencyProvider(module2Types));
-            });
+            return descriptor.ToModule(dependencies => graph.Activate(dependencies, descriptor2Module).Select(p => p.ToDependencyProvider(module2Types)));
         }
 
         private static IModule CreateLazyModule(
@@ -178,7 +174,7 @@ namespace FluentHelium.Module
             new ModuleController(graph, input, modules);
 
         public static IModuleGraph ToSimpleModuleGraph(this IEnumerable<IModuleDescriptor> modules) =>
-            modules.ToModuleGraph(Simple.ToBuilder(External));
+            modules.ToModuleGraph(Simple.Or(External));
 
         public static IModuleGraph ToModuleGraph(
             this IEnumerable<IModuleDescriptor> modules,
@@ -190,7 +186,7 @@ namespace FluentHelium.Module
                 ToLookup(p => p.Key, p => p.Value);
             var inner = moduleList.ToImmutableDictionary(
                 m => m,
-                m => (IModuleDependencies)new ModuleDependencies(m.Input.ToImmutableDictionary(t => t, t => builder.Build(m, t, outputs)), m));
+                m => (IModuleDependencies)new ModuleDependencies(m.Input.ToImmutableDictionary(t => t, t => builder.Build(m, t, outputs).AsGeneric.Unwrap()), m));
             var inputs = inner.
                 SelectMany(p => p.Value.
                     SelectMany(d => d.Output.

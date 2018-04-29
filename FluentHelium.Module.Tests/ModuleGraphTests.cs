@@ -20,7 +20,7 @@ namespace FluentHelium.Module.Tests
                 var a = typeof(object).ToModuleDescriptor("A", typeof(int));
                 return new[] { a };
             }).
-            When(_ => _.ToModuleGraph(Simple.ToBuilder(External))).
+            When(_ => _.ToModuleGraph(Simple.Or(External))).
             Then(_ => _.Input.Count.Should().Be(1)).
                 And(_ => _.Input.First().Key.Should().Be(typeof(object))).
                 And(_ => _.Input.First().Count().Should().Be(1)).
@@ -86,7 +86,7 @@ namespace FluentHelium.Module.Tests
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraph(Optional.Or(Simple).ToBuilder(External))).
+                ToModuleGraph(Optional.Or(Simple, External))).
             Then(_ => _.Input.Count.Should().Be(1)).
                 And(_ => _.Input.First().Key.Should().Be(typeof(object))).
                 And(_ => _.Input.First().Count().Should().Be(1)).
@@ -104,7 +104,7 @@ namespace FluentHelium.Module.Tests
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraph(Optional.Or(Multiple).Or(Simple).ToBuilder(External)).
+                ToModuleGraph(Optional.Or(Multiple, Simple, External)).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
                     DependencyProvider.Empty).
@@ -117,12 +117,12 @@ namespace FluentHelium.Module.Tests
             Given(() =>
             {
                 var a = CreateSimpleModule("A", () => 42);
-                var b = CreateSimpleModule<Option<int>, double>("B", i => i.GetValue(24));
+                var b = CreateSimpleModule<Option<int>, double>("B", i => i.AsGeneric.GetValue(24));
                 return new[] {a, b};
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraph(Optional.Or(Simple).ToBuilder(External)).
+                ToModuleGraph(Optional.Or(Simple).Or(External)).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
                     DependencyProvider.Empty).
@@ -134,12 +134,12 @@ namespace FluentHelium.Module.Tests
         public void OptionDependencyValueFailResolveTest() => 
             Given(() =>
             {
-                var b = CreateSimpleModule<Option<int>, double>("B", i => i.GetValue(24));
+                var b = CreateSimpleModule<Option<int>, double>("B", i => i.AsGeneric.GetValue(24));
                 return new[] { b };
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraph(Optional.Or(Simple).ToBuilder(External)).
+                ToModuleGraph(Optional.Or(Simple).Or(External)).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
                     default(Option<int>).ToDependencyProvider()).
@@ -157,7 +157,7 @@ namespace FluentHelium.Module.Tests
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraph(Optional.Or(Simple).ToBuilder(External)).
+                ToModuleGraph(Optional.Or(Simple).Or(External)).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
                     DependencyProvider.Empty).
@@ -174,7 +174,7 @@ namespace FluentHelium.Module.Tests
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraph(Optional.Or(Simple).ToBuilder(External)).
+                ToModuleGraph(Optional.Or(Simple).Or(External)).
                 ToModuleController(
                     _.ToImmutableDictionary(m => m.Descriptor),
                     ((object)null).ToRefOption().ToDependencyProvider()).
@@ -192,7 +192,7 @@ namespace FluentHelium.Module.Tests
             }).
             When(_ => _.
                 Select(m => m.Descriptor).
-                ToModuleGraph(Optional.Or(Simple).ToBuilder(External))).
+                ToModuleGraph(Optional.Or(Simple).Or(External))).
             Then(_ => _.Input.Count.Should().Be(1)).
                 And(_ => _.Input.First().Key.Should().Be(typeof(RefOption<object>))).
                 And(_ => _.Input.First().Count().Should().Be(1)).

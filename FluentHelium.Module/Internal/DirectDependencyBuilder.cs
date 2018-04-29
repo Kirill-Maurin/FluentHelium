@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using FluentHelium.Base;
 
 namespace FluentHelium.Module
 {
@@ -12,16 +13,14 @@ namespace FluentHelium.Module
         internal DirectDependencyBuilder(
             IModuleDescriptor client,
             Type @interface,
-            IModuleDescriptor implementation,
-            IModuleDependencyBuilder fallback)
+            IModuleDescriptor implementation)
         {
             _client = client;
             _interface = @interface;
             _implementation = implementation;
-            _fallback = fallback;
         }
 
-        public IModuleInputDependency Build(
+        public RefOption<IModuleInputDependency> Build(
             IModuleDescriptor client,
             Type @interface,
             ILookup<Type, IModuleDescriptor> implementations) =>
@@ -29,12 +28,11 @@ namespace FluentHelium.Module
                 ? _implementation.ToModuleInputDependency(
                     client,
                     @interface,
-                    provider => provider(_implementation).Resolve(@interface))
-                : _fallback.Build(client, @interface, implementations);
+                    provider => provider(_implementation).Resolve(@interface)).ToRefSome()
+                : default;
 
         private readonly IModuleDescriptor _client;
         private readonly Type _interface;
         private readonly IModuleDescriptor _implementation;
-        private readonly IModuleDependencyBuilder _fallback;
     }
 }

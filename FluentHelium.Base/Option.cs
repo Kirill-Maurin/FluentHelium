@@ -18,12 +18,10 @@ namespace FluentHelium.Base
         public static T GetValue<T, TO>(this Option<T, TO> option, T fallback) 
             where TO : struct, IOption<T, TO> 
             => option.TryGet(out var value) ? value : fallback;
-        public static T GetValue<T>(this Option<T> option, T fallback) 
-            where T : struct 
-            => option.TryGet(out var value) ? value : fallback;
-        public static T GetValue<T>(this RefOption<T> option, T fallback)
-            where T : class
-            => option.TryGet(out var value) ? value : fallback;
+
+        public static T GetValueWithLazyFallback<T, TO>(this Option<T, TO> option, Func<T> fallback)
+            where TO : struct, IOption<T, TO>
+            => option.TryGet(out var value) ? value : fallback();
 
         public static Option<TOutput, Option<TOutput>> Select<T, TO, TOutput>(this Option<T, TO> option, Func<T, TOutput?> selector) 
             where TOutput : struct 
@@ -44,6 +42,19 @@ namespace FluentHelium.Base
             where TO : struct, IOption<T, TO>
             where TOutputO : struct, IOption<TOutput, TOutputO>
             => option.TryGet(out var value) ? selector(value) : default;
+
+        public static T Unwrap<T, TO>(this Option<T, TO> option) 
+            where TO : struct, IOption<T, TO> 
+            => option.Unwrap(() => new InvalidOperationException($@"Attempt to unwrap null option <{typeof(T).Name}>"));
+
+        public static T Unwrap<T, TO>(this Option<T, TO> option, Func<Exception> create)
+            where TO : struct, IOption<T, TO>
+        {
+            if (option.TryGet(out var value))
+                return value;
+            throw create();
+        }
+
 
         public static RefOptionTaskAwaitable<T> CanceledToNone<T>(this Task<T> task) where T : class => new RefOptionTaskAwaitable<T>(task);
 
@@ -103,6 +114,8 @@ namespace FluentHelium.Base
         public Option<T> Some(T value) => new Option<T>(Option.Some(value));
 
         public static explicit operator Option<T>(Option<T, Option<T>> option) => option.Inner;
+
+        public Option<T, Option<T>> AsGeneric => this;
 
         public static explicit operator Option<T, Option<T>>(Option<T> option) => option;
 
