@@ -188,7 +188,10 @@ namespace FluentHelium.Base
 
             public bool IsCompleted => _task.IsCompleted;
 
-            public Result<T> GetResult() => _task.TryGetException(out var e) ? e.ToFail<T>() : _task.Result.ToSuccess();
+            public Result<T> GetResult() 
+                => _task.TryGetException(out var e) ? e.ToFail<T>() 
+                : _task.IsCanceled ? new TaskCanceledException().ToFail<T>()
+                : _task.Result.ToSuccess();
 
             private ConfiguredTaskAwaitable<T>.ConfiguredTaskAwaiter Inner => _task.ConfigureAwait(false).GetAwaiter();
 
@@ -205,7 +208,10 @@ namespace FluentHelium.Base
 
             public bool IsCompleted => _task.IsCompleted;
 
-            public Result<T> GetResult() => _task.TryGetException(out var e) ? e.ToFail<T>() : _task.Result.ToSuccess();
+            public Result<T> GetResult()
+                => _task.TryGetException(out var e) ? e.ToFail<T>()
+                : _task.IsCanceled ? new TaskCanceledException().ToFail<T>()
+                : _task.Result.ToSuccess();
 
             private ConfiguredValueTaskAwaitable<T>.ConfiguredValueTaskAwaiter Inner => _task.ConfigureAwait(false).GetAwaiter();
 
@@ -222,7 +228,10 @@ namespace FluentHelium.Base
 
             public bool IsCompleted => _task.IsCompleted;
 
-            public Result<T> GetResult() => _task.TryGetException(out var e) ? e.ToFail<T>() : _task.Result;
+            public Result<T> GetResult()
+                => _task.TryGetException(out var e) ? e.ToFail<T>()
+                : _task.IsCanceled ? new TaskCanceledException().ToFail<T>()
+                : _task.Result;
 
             private ConfiguredTaskAwaitable<Result<T>>.ConfiguredTaskAwaiter Inner => _task.ConfigureAwait(false).GetAwaiter();
 
@@ -239,7 +248,10 @@ namespace FluentHelium.Base
 
             public bool IsCompleted => _task.IsCompleted;
 
-            public Result<Unit> GetResult() => _task.TryGetException(out var e) ? e.ToFail<Unit>() : Unit;
+            public Result<Unit> GetResult()
+                => _task.TryGetException(out var e) ? e.ToFail<Unit>()
+                : _task.IsCanceled ? new TaskCanceledException().ToFail<Unit>()
+                : Unit;
 
             private ConfiguredTaskAwaitable.ConfiguredTaskAwaiter Inner => _task.ConfigureAwait(false).GetAwaiter();
 

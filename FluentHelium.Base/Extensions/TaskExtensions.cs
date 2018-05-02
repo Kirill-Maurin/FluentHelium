@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using NullGuard;
 
 namespace FluentHelium.Base
 {
@@ -25,13 +26,13 @@ namespace FluentHelium.Base
             return tcs.Task;
         }
 
-        public static bool TryGetException(this Task task, out Exception exception)
+        public static bool TryGetException(this Task task, [AllowNull]out Exception exception)
         {
             exception = task.Exception?.Flatten().InnerExceptions[0];
             return exception != null;
         }
 
-        public static bool TryGetException<T>(this ValueTask<T> task, out Exception exception)
+        public static bool TryGetException<T>(this ValueTask<T> task, [AllowNull]out Exception exception)
         {
             exception = default;
             return task.IsFaulted && task.AsTask().TryGetException(out exception);
