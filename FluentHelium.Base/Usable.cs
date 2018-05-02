@@ -77,17 +77,13 @@ namespace FluentHelium.Base
         public static void Using<T>(this Usable<T> usable, Action<T> action)
         {
             using (usable)
-            {
                 action(usable.Value);
-            }
         }
 
         public static TResult Using<T, TResult>(this Usable<T> usable, Func<T, TResult> func)
         {
             using (usable)
-            {
                 return func(usable.Value);
-            }
         }
 
         public static void Using<T>(this Func<Usable<T>> factory, Action<T> action) => factory().Using(action);

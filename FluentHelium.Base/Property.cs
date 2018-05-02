@@ -20,9 +20,7 @@ namespace FluentHelium.Base
             set
             {
                 if (ReferenceEquals(_value, value) || (_value?.Equals(value) ?? false))
-                {
                     return;
-                }
                 _value = value;
                 _subject?.OnNext(_value);
             }
