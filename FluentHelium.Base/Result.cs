@@ -7,9 +7,22 @@ namespace FluentHelium.Base
 {
     public static class Result
     {
+        /// <summary>
+        /// Try extract value from result; throw exception when failure
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="result"></param>
+        /// <returns></returns>
         public static T Unwrap<T>(this Result<T> result) 
             => result.Unwrap(error => new InvalidOperationException("Attempt to unwrap result with error", error));
 
+        /// <summary>
+        /// Try extract value from result; throw exception when failure
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="result"></param>
+        /// <param name="create"></param>
+        /// <returns></returns>
         public static T Unwrap<T>(this Result<T> result, Func<Exception, Exception> create)
         {
             if (result.TryGet(out var value, out var error))
@@ -17,6 +30,13 @@ namespace FluentHelium.Base
             throw create(error);
         }
 
+        /// <summary>
+        /// Try extract exception from result; throw exception when success
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="result"></param>
+        /// <param name="create"></param>
+        /// <returns></returns>
         public static Exception UnwrapFail<TResult>(this TResult result, Func<Exception> create) where TResult : struct, IFailure<Exception>
         {
             if (result.TryGetError(out var error))
@@ -24,14 +44,43 @@ namespace FluentHelium.Base
             throw create();
         }
 
+        /// <summary>
+        /// Convert value to success
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static Result<T> ToSuccess<T>(this T value) => new Result<T>(value);
         public static Result<T, TE> ToSuccess<T, TE>(this T value) where TE : class => new Result<T, TE>(value);
+
+        /// <summary>
+        /// Convert exception to failure
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public static Result<T> ToFail<T>(this Exception error) => new Result<T>(error);
         public static Result<T, TE> ToFail<T, TE>(this T value) where TE : class => new Result<T, TE>(value);
 
+        /// <summary>
+        /// Apply function if success
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="result"></param>
+        /// <param name="selector"></param>
+        /// <returns></returns>
         public static Result<TOutput> Select<T, TOutput>(this Result<T> result, Func<T, TOutput> selector) 
             => result.TryGet(out var value, out var error) ? selector(value).ToSuccess() : error.ToFail<TOutput>();
-    
+        
+        /// <summary>
+        /// Try apply function if success; catch exception and convert to failure
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TOutput"></typeparam>
+        /// <param name="result"></param>
+        /// <param name="selector"></param>
+        /// <returns></returns>
         public static Result<TOutput> Try<T, TOutput>(this Result<T> result, Func<T, TOutput> selector) =>
             result.TryGet(out var value, out var error)
                 ? error.ToFail<TOutput>()
@@ -312,6 +361,10 @@ namespace FluentHelium.Base
         public static implicit operator Result<T, TE, TR>(TR result) => new Result<T, TE, TR>(result);
     }
 
+    /// <summary>
+    /// Result: success with value or failure with exception
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public readonly struct Result<T> : IResult<T>, IResult<T, Exception, Result<T>>
     {
         internal Result(T value)
