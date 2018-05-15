@@ -37,6 +37,20 @@ namespace FluentHelium.Module
             }
         }
 
+        public static IModule ToSimpleSuperModule(this IModuleGraph graph, string name, params IModule[] modules)
+            => graph.ToSuperModule(
+                (t, mds) => mds.SingleOrDefault(),
+                name,
+                Guid.NewGuid(), 
+                modules);
+        
+        public static IModule ToSimpleLazyModule(this IModuleGraph graph, string name, params IModule[] modules)
+           => graph.ToLazyModule(
+                (t, mds) => mds.SingleOrDefault(),
+                name,
+                Guid.NewGuid(),
+                modules);
+      
         public static IModule ToSuperModule(this IModuleGraph graph, string name, params IModule[] modules) 
             => graph.ToSuperModule(
                 (t, mds) => mds.SingleOrDefault(),

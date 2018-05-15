@@ -1,10 +1,12 @@
-﻿#r "C:\Projects\FluentHelium\FluentHelium.Module\bin\Debug\netstandard1.1\FluentHelium.Module.dll"
+﻿#r "E:\FluentHelium\.build\Debug\FluentHelium.Module.dll"
+#r "C:\Users\Leo\.nuget\packages\system.collections.immutable\1.4.0\lib\netstandard1.0\System.Collections.Immutable.dll"
 #r "C:\Users\Leo\.nuget\packages\system.reactive.interfaces\3.0.0\lib\netstandard1.0\System.Reactive.Interfaces.dll"
 #r "C:\Users\Leo\.nuget\packages\system.reactive.linq\3.0.0\lib\netstandard1.0\System.Reactive.Linq.dll"
 #r "C:\Users\Leo\.nuget\packages\system.reactive.core\3.0.0\lib\netstandard1.0\System.Reactive.Core.dll"
 using System.Runtime.InteropServices.ComTypes;
 using FluentHelium.Module;
-using static FluentHelium.Module.ModuleExtensions;
+using FluentHelium.Base;
+using static FluentHelium.Module.Module;
 var module = CreateSimpleModule("Главный ответ", () => 42);
 WriteLine(module);
 var provider = module.Activate(DependencyProvider.Empty);
