@@ -6,7 +6,7 @@
     <DebugSymbols>true</DebugSymbols>
     <LangVersion>latest</LangVersion>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <IntermediateOutputPath>$(SolutionDir)\.build\obj\$(Configuration)\$(MSBuildProjectName)\</IntermediateOutputPath>
+    <BaseIntermediateOutputPath>$(SolutionDir).build\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
     <OutputPath>$(SolutionDir)\.build\$(Configuration)\</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
     <UseCommonOutputDirectory>True</UseCommonOutputDirectory>  
