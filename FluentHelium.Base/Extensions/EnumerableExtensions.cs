@@ -22,41 +22,43 @@ namespace FluentHelium.Base
             Func<T, IEnumerable<T>> getLinks,
             out IEnumerable<T> order) where T : class
         {
-            var moduleList = nodes.ToImmutableList();
-            var path = new Stack<T>();
-            var result = new List<T>();
-            var colors = Enumerable.Range(0, moduleList.Count).ToDictionary(i => moduleList[i], i => Color.White);
-
-            foreach (var m in moduleList.Where(m => colors[m] == Color.White))
+            var nodeList = nodes.ToImmutableList();
+            if (nodeList.Count == 0)
             {
-                var current = m;
-                colors[current] = Color.Gray;
-                for (; ; )
+                order = Enumerable.Empty<T>();
+                return true;
+            }
+            var path = new Stack<IEnumerator<T>>();
+            var result = new List<T>();
+            var colors = Enumerable.Range(0, nodeList.Count).ToDictionary(i => nodeList[i], i => Color.White);
+            var next = nodeList.Where(m => colors[m] == Color.White).GetEnumerator();
+            T current = null;
+            for (; ; )
+            {
+                if (!next.MoveNext())
                 {
-                    var next = getLinks(current).FirstOrDefault(l => colors[l] != Color.Black);
-                    if (next == null)
-                    {
-                        colors[current] = Color.Black;
-                        result.Add(current);
-                        if (path.Count == 0)
-                            break;
-                        current = path.Pop();
-                        continue;
-                    }
-                    path.Push(current);
-                    if (colors[next] == Color.Gray)
-                    {
-                        order = path.TakeWhile(c => !ReferenceEquals(c, next)).Concat(new[] { next });
-                        return false;
-                    }
-                    current = next;
-                    colors[current] = Color.Gray;
+                    if (path.Count == 0)
+                        break;
+                    colors[current] = Color.Black;
+                    result.Add(current);
+                    next = path.Pop();
+                    current = path.Count > 0 ? path.Peek().Current : null;
+                    continue;
                 }
+                current = next.Current;
+                if (colors[current] == Color.Gray)
+                {
+                    order = path.Select(e => e.Current).TakeWhile(c => !c.Equals(current)).Concat(new[] { current });
+                    return false;
+                }
+                path.Push(next);
+                next = getLinks(current).Where(l => colors[l] != Color.Black).GetEnumerator();
+                colors[current] = Color.Gray;
             }
             order = result;
             return true;
         }
 
-        private enum Color { White, Gray, Black }
+        enum Color { White, Gray, Black }
     }
 }
