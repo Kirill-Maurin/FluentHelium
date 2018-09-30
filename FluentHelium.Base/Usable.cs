@@ -1,9 +1,9 @@
-﻿using System;
+﻿using NullGuard;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive.Disposables;
-using NullGuard;
 
 namespace FluentHelium.Base
 {
@@ -11,7 +11,7 @@ namespace FluentHelium.Base
     {
         public static Action DoNothing { get; } = () => { };
 
-        public static Usable<T> ToUsable<T>(this T resource, IDisposable usageTime) => new Usable<T>(resource, usageTime);
+        public static Usable<T> ToUsable<T>(this T resource, IDisposable usageTime) => new Usable<T>(resource, usageTime.Dispose);
 
         public static Usable<T> Wrap<T>(this Usable<T> resource, IDisposable usageTime) => new Usable<T>(resource.Value, () =>
         {
@@ -117,15 +117,9 @@ namespace FluentHelium.Base
     /// Usable can be use before Dispose call
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public sealed class Usable<T> : IDisposable 
+    public sealed class Usable<T> : IDisposable
     {
-        internal Usable(T resource, IDisposable usageTime) : this(resource, usageTime.Dispose) {}
-
-        internal Usable(T resource, Action dispose)
-        {
-            _dispose = dispose;
-            _value = resource;
-        }
+        internal Usable(T resource, Action dispose) => (_dispose, _value) = (dispose, resource);
 
         public void Dispose()
         {
@@ -146,7 +140,7 @@ namespace FluentHelium.Base
 
         public override string ToString() => _dispose != null ? $"Usable{{{_value}}}" : $"Disposed<{typeof(T).Name}>";
 
-        private Action _dispose;
-        private T _value;
+        Action _dispose;
+        T _value;
     }
 }
