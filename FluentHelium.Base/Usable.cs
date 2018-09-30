@@ -13,13 +13,13 @@ namespace FluentHelium.Base
 
         public static Usable<T> ToUsable<T>(this T resource, IDisposable usageTime) => new Usable<T>(resource, usageTime.Dispose);
 
-        public static Usable<T> Wrap<T>(this Usable<T> resource, IDisposable usageTime) => new Usable<T>(resource.Value, () =>
+        public static Usable<T> Wrap<T>(this Usable<T> resource, IDisposable usageTime) => new Usable<T>(resource.Resource, () =>
         {
             resource.Dispose();
             usageTime.Dispose();
         });
 
-        public static Usable<T> Wrap<T>(this Usable<T> resource, Action dispose) => new Usable<T>(resource.Value, () =>
+        public static Usable<T> Wrap<T>(this Usable<T> resource, Action dispose) => new Usable<T>(resource.Resource, () =>
         {
             resource.Dispose();
             dispose();
@@ -56,7 +56,7 @@ namespace FluentHelium.Base
             {
                 var disposable = refCount.GetDisposable();
                 refCount.Dispose();
-                return source.Value.ToUsable(disposable);
+                return source.Resource.ToUsable(disposable);
             };
         }
 
@@ -66,10 +66,10 @@ namespace FluentHelium.Base
             factory(usageTime).ToUsable(usageTime);
 
         public static Usable<T> Select<TSource, T>(this Usable<TSource> source, Func<TSource, T> selector) =>
-            selector(source.Value).ToUsable(source);
+            selector(source.Resource).ToUsable(source);
 
         public static Usable<T> SelectMany<TSource, T>(this Usable<TSource> source, Func<TSource, Usable<T>> selector) =>
-            selector(source.Value).Wrap(source);
+            selector(source.Resource).Wrap(source);
 
         public static Usable<T> Wrap<T>(this Usable<T> source, Func<Usable<T>, IDisposable> selector) =>
             source.Wrap(selector(source));
@@ -77,13 +77,13 @@ namespace FluentHelium.Base
         public static void Using<T>(this Usable<T> usable, Action<T> action)
         {
             using (usable)
-                action(usable.Value);
+                action(usable.Resource);
         }
 
         public static TResult Using<T, TResult>(this Usable<T> usable, Func<T, TResult> func)
         {
             using (usable)
-                return func(usable.Value);
+                return func(usable.Resource);
         }
 
         public static void Using<T>(this Func<Usable<T>> factory, Action<T> action) => factory().Using(action);
@@ -92,11 +92,11 @@ namespace FluentHelium.Base
 
         public static Usable<T> Do<T>(this Usable<T> usable, Action<T> action)
         {
-            action(usable.Value);
+            action(usable.Resource);
             return usable;
         }
 
-        public static TResult Unwrap<T, TResult>(this Usable<T> usable, Func<T, TResult> func) => func(usable.Value);
+        public static TResult Unwrap<T, TResult>(this Usable<T> usable, Func<T, TResult> func) => func(usable.Resource);
 
         public static Usable<T> Replace<T>([AllowNull]this Usable<T> usable, Usable<T> @new)
         {
@@ -107,7 +107,7 @@ namespace FluentHelium.Base
         public static Usable<IEnumerable<T>> ToAggregatedUsable<T>(this IEnumerable<Usable<T>> source)
         {
             var disposables = source.ToImmutableList();
-            return ((IEnumerable<T>)disposables.Select(u => u.Value).ToImmutableList()).ToUsable(new CompositeDisposable(disposables));
+            return ((IEnumerable<T>)disposables.Select(u => u.Resource).ToImmutableList()).ToUsable(new CompositeDisposable(disposables));
         }
     }
 
@@ -119,28 +119,20 @@ namespace FluentHelium.Base
     /// <typeparam name="T"></typeparam>
     public sealed class Usable<T> : IDisposable
     {
-        internal Usable(T resource, Action dispose) => (_dispose, _value) = (dispose, resource);
+        internal Usable(T resource, Action dispose) => (_dispose, _resource) = (dispose, resource);
 
         public void Dispose()
         {
             (_dispose ?? throw new ObjectDisposedException("")).Invoke();
             _dispose = null;
-            _value = default;
+            _resource = default;
         }
 
-        internal T Value
-        {
-            get
-            {
-                if (_dispose == null)
-                    throw new ObjectDisposedException("");
-                return _value;
-            }
-        }
+        internal T Resource => _dispose == null ? throw new ObjectDisposedException("") : _resource;
 
-        public override string ToString() => _dispose != null ? $"Usable{{{_value}}}" : $"Disposed<{typeof(T).Name}>";
+        public override string ToString() => _dispose != null ? $"Usable{{{_resource}}}" : $"Disposed<{typeof(T).Name}>";
 
         Action _dispose;
-        T _value;
+        T _resource;
     }
 }
