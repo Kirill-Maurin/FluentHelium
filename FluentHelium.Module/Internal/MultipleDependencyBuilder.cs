@@ -1,13 +1,13 @@
+using FluentHelium.Base;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using FluentHelium.Base;
 
 namespace FluentHelium.Module
 {
-    internal sealed class MultipleDependencyBuilder : IModuleDependencyBuilder
+    sealed class MultipleDependencyBuilder : IModuleDependencyBuilder
     {
         public RefOption<IModuleInputDependency> Build(
             IModuleDescriptor client,
@@ -33,22 +33,22 @@ namespace FluentHelium.Module
                                 Select(e => (IEnumerable)e);
                         var multiplets =
                             implementations[@interface].Select(d => p(d).Resolve(@interface).Select(o => (IEnumerable)o));
-                        return new [] { singlets }.
+                        return new[] { singlets }.
                             Concat(multiplets).
                             ToAggregatedUsable().
                             Select(e => Cast(SelectMany(e), parameter));
                     }).ToRefSome();
         }
 
-        private IEnumerable SelectMany(IEnumerable<IEnumerable> source)
+        IEnumerable SelectMany(IEnumerable<IEnumerable> source)
         {
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var e in source)
-            foreach (var o in e)
-                yield return o;
+                foreach (var o in e)
+                    yield return o;
         }
 
-        private object Cast(IEnumerable e, Type type) =>
+        object Cast(IEnumerable e, Type type) =>
             typeof(Enumerable).
                 GetTypeInfo().
                 GetDeclaredMethods(nameof(Enumerable.Cast)).

@@ -1,7 +1,7 @@
+using NullGuard;
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using NullGuard;
 
 namespace FluentHelium.Base
 {
@@ -13,7 +13,7 @@ namespace FluentHelium.Base
         /// <typeparam name="T"></typeparam>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static T Unwrap<T>(this Result<T> result) 
+        public static T Unwrap<T>(this Result<T> result)
             => result.Unwrap(error => new InvalidOperationException("Attempt to unwrap result with error", error));
 
         /// <summary>
@@ -70,9 +70,9 @@ namespace FluentHelium.Base
         /// <param name="result"></param>
         /// <param name="selector"></param>
         /// <returns></returns>
-        public static Result<TOutput> Select<T, TOutput>(this Result<T> result, Func<T, TOutput> selector) 
+        public static Result<TOutput> Select<T, TOutput>(this Result<T> result, Func<T, TOutput> selector)
             => result.TryGet(out var value, out var error) ? selector(value).ToSuccess() : error.ToFail<TOutput>();
-        
+
         /// <summary>
         /// Try apply function if success; catch exception and convert to failure
         /// </summary>
@@ -124,7 +124,7 @@ namespace FluentHelium.Base
                 return e.ToFail<T>();
             }
         }
-        
+
         public static readonly Result<Unit> Unit = Base.Unit.Value.ToSuccess();
         public static Awaitable<T, ValueAwaiter<T>> ToResult<T>(this ValueTask<T> task) => new Awaitable<T, ValueAwaiter<T>>(new ValueAwaiter<T>(task));
         public static Awaitable<T, TaskAwaiter<T>> ToResult<T>(this Task<T> task) => new Awaitable<T, TaskAwaiter<T>>(new TaskAwaiter<T>(task));
@@ -139,7 +139,7 @@ namespace FluentHelium.Base
                 return e.ToTask<T>();
             if (resultTask.IsCompleted)
                 return resultTask.Result.TryGet(out var success, out var failure) ? Task.FromResult(success)
-                    : failure is TaskCanceledException ? TaskExtensions.Canceled<T>() 
+                    : failure is TaskCanceledException ? TaskExtensions.Canceled<T>()
                     : failure.ToTask<T>();
 
             var result = new TaskCompletionSource<T>();
@@ -160,12 +160,12 @@ namespace FluentHelium.Base
             return result.Task;
         }
 
-        public static async Task<Result<T>> ToResulTask<T, TAwaiter>(this Awaitable<T, TAwaiter> awaitable) 
+        public static async Task<Result<T>> ToResulTask<T, TAwaiter>(this Awaitable<T, TAwaiter> awaitable)
             where TAwaiter : IResultAwaiter<T>
             => await awaitable;
 
-        public static Task<T> ToTask<T, TAwaiter>(this Awaitable<T, TAwaiter> awaitable) 
-            where TAwaiter : IResultAwaiter<T> 
+        public static Task<T> ToTask<T, TAwaiter>(this Awaitable<T, TAwaiter> awaitable)
+            where TAwaiter : IResultAwaiter<T>
             => awaitable.ToResulTask().Unwrap();
 
         public static Awaitable<TResult, Awaiter<TResult>> Select<T, TAwaiter, TResult>(
@@ -181,8 +181,8 @@ namespace FluentHelium.Base
             where TResultAwaiter : IResultAwaiter<TResult>
         {
             return Async().ToResult();
-            async Task<Result<TResult>> Async() => (await awaitable).TryGet(out var success, out var failure) 
-                ? await selector(success) 
+            async Task<Result<TResult>> Async() => (await awaitable).TryGet(out var success, out var failure)
+                ? await selector(success)
                 : failure.ToFail<TResult>();
         }
 
@@ -191,7 +191,7 @@ namespace FluentHelium.Base
             Func<T, Awaitable<TResult, TResultAwaiter>> selector)
             where TAwaiter : IResultAwaiter<T>
             where TResultAwaiter : IResultAwaiter<TResult>
-            where T: IDisposable
+            where T : IDisposable
             => awaitable.Select(v =>
             {
                 using (v)
@@ -224,7 +224,7 @@ namespace FluentHelium.Base
 
             public TAwaiter GetAwaiter() => _awaiter;
 
-            private readonly TAwaiter _awaiter;
+            readonly TAwaiter _awaiter;
         }
 
         public readonly struct TaskAwaiter<T> : IResultAwaiter<T>
@@ -237,14 +237,14 @@ namespace FluentHelium.Base
 
             public bool IsCompleted => _task.IsCompleted;
 
-            public Result<T> GetResult() 
-                => _task.TryGetException(out var e) ? e.ToFail<T>() 
+            public Result<T> GetResult()
+                => _task.TryGetException(out var e) ? e.ToFail<T>()
                 : _task.IsCanceled ? new TaskCanceledException().ToFail<T>()
                 : _task.Result.ToSuccess();
 
-            private ConfiguredTaskAwaitable<T>.ConfiguredTaskAwaiter Inner => _task.ConfigureAwait(false).GetAwaiter();
+            ConfiguredTaskAwaitable<T>.ConfiguredTaskAwaiter Inner => _task.ConfigureAwait(false).GetAwaiter();
 
-            private readonly Task<T> _task;
+            readonly Task<T> _task;
         }
 
         public readonly struct ValueAwaiter<T> : IResultAwaiter<T>
@@ -262,9 +262,9 @@ namespace FluentHelium.Base
                 : _task.IsCanceled ? new TaskCanceledException().ToFail<T>()
                 : _task.Result.ToSuccess();
 
-            private ConfiguredValueTaskAwaitable<T>.ConfiguredValueTaskAwaiter Inner => _task.ConfigureAwait(false).GetAwaiter();
+            ConfiguredValueTaskAwaitable<T>.ConfiguredValueTaskAwaiter Inner => _task.ConfigureAwait(false).GetAwaiter();
 
-            private readonly ValueTask<T> _task;
+            readonly ValueTask<T> _task;
         }
 
         public readonly struct Awaiter<T> : IResultAwaiter<T>
@@ -282,9 +282,9 @@ namespace FluentHelium.Base
                 : _task.IsCanceled ? new TaskCanceledException().ToFail<T>()
                 : _task.Result;
 
-            private ConfiguredTaskAwaitable<Result<T>>.ConfiguredTaskAwaiter Inner => _task.ConfigureAwait(false).GetAwaiter();
+            ConfiguredTaskAwaitable<Result<T>>.ConfiguredTaskAwaiter Inner => _task.ConfigureAwait(false).GetAwaiter();
 
-            private readonly Task<Result<T>> _task;
+            readonly Task<Result<T>> _task;
         }
 
         public readonly struct Awaiter : IResultAwaiter<Unit>
@@ -302,9 +302,9 @@ namespace FluentHelium.Base
                 : _task.IsCanceled ? new TaskCanceledException().ToFail<Unit>()
                 : Unit;
 
-            private ConfiguredTaskAwaitable.ConfiguredTaskAwaiter Inner => _task.ConfigureAwait(false).GetAwaiter();
+            ConfiguredTaskAwaitable.ConfiguredTaskAwaiter Inner => _task.ConfigureAwait(false).GetAwaiter();
 
-            private readonly Task _task;
+            readonly Task _task;
         }
     }
 
@@ -313,8 +313,8 @@ namespace FluentHelium.Base
         public Result(T value) => (Value, Error) = (value, default);
         public Result(TE error) => (Value, Error) = (default, error.ToRefSome());
 
-        private T Value { get; }
-        private RefOption<TE> Error { get; }
+        T Value { get; }
+        RefOption<TE> Error { get; }
 
         public bool TryGet(out T value)
         {
@@ -379,9 +379,9 @@ namespace FluentHelium.Base
             InternalValue = default;
         }
 
-        private T InternalValue { get; }
+        T InternalValue { get; }
         [AllowNull]
-        private Exception InternalError { get; }
+        Exception InternalError { get; }
 
         public bool IsFail => InternalError != null;
         public bool IsSuccess => InternalError == null;

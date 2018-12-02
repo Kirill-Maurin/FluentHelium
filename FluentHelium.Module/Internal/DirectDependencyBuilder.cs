@@ -8,7 +8,7 @@ namespace FluentHelium.Module
     /// <summary>
     /// Hard builder: use concrete implementation for (client, service) pair
     /// </summary>
-    internal sealed class DirectDependencyBuilder : IModuleDependencyBuilder
+    sealed class DirectDependencyBuilder : IModuleDependencyBuilder
     {
         internal DirectDependencyBuilder(
             IModuleDescriptor client,
@@ -31,8 +31,8 @@ namespace FluentHelium.Module
                     provider => provider(_implementation).Resolve(@interface)).ToRefSome()
                 : default;
 
-        private readonly IModuleDescriptor _client;
-        private readonly Type _interface;
-        private readonly IModuleDescriptor _implementation;
+        readonly IModuleDescriptor _client;
+        readonly Type _interface;
+        readonly IModuleDescriptor _implementation;
     }
 }

@@ -9,7 +9,7 @@ using FluentHelium.Base;
 
 namespace FluentHelium.Module
 {
-    internal sealed class ModuleController : IModuleController
+    sealed class ModuleController : IModuleController
     {
         public ModuleController(IModuleGraph graph, IDependencyProvider input, IReadOnlyDictionary<IModuleDescriptor, IModule> modules)
         {
@@ -27,7 +27,7 @@ namespace FluentHelium.Module
         public Usable<IDependencyProvider> GetProvider(IModuleDescriptor descriptor) =>
             _providers.GetOrAdd(descriptor, CreateProvider)();
 
-        private Func<Usable<IDependencyProvider>> CreateProvider(IModuleDescriptor descriptor)
+        Func<Usable<IDependencyProvider>> CreateProvider(IModuleDescriptor descriptor)
         {
             var dependecies = _graph.Dependencies[descriptor];
             var provider = GetDependencyProviders(descriptor).
@@ -46,7 +46,7 @@ namespace FluentHelium.Module
             return provider.ToRefCount();
         }
 
-        private Usable<ImmutableDictionary<IModuleDescriptor, IDependencyProvider>> GetDependencyProviders(IModuleDescriptor descriptor) =>
+        Usable<ImmutableDictionary<IModuleDescriptor, IDependencyProvider>> GetDependencyProviders(IModuleDescriptor descriptor) =>
             _graph.
                 Dependencies[descriptor].
                 SelectMany(d => d.Output.Select(o => o.Implementation)).
@@ -59,12 +59,12 @@ namespace FluentHelium.Module
 
         public IObservable<KeyValuePair<IModuleDescriptor, bool>> ActiveChanged { get; }
 
-        private readonly ConcurrentDictionary<IModuleDescriptor, Func<Usable<IDependencyProvider>>> _providers = 
+        readonly ConcurrentDictionary<IModuleDescriptor, Func<Usable<IDependencyProvider>>> _providers = 
             new ConcurrentDictionary<IModuleDescriptor, Func<Usable<IDependencyProvider>>>();
 
-        private readonly IDependencyProvider _input;
-        private readonly IReadOnlyDictionary<IModuleDescriptor, IModule> _modules;
-        private readonly Subject<KeyValuePair<IModuleDescriptor, bool>> _activeChanged;
-        private readonly IModuleGraph _graph;
+        readonly IDependencyProvider _input;
+        readonly IReadOnlyDictionary<IModuleDescriptor, IModule> _modules;
+        readonly Subject<KeyValuePair<IModuleDescriptor, bool>> _activeChanged;
+        readonly IModuleGraph _graph;
     }
 }

@@ -1,16 +1,16 @@
+using FluentHelium.Base;
+using NullGuard;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using FluentHelium.Base;
-using NullGuard;
 
 namespace FluentHelium.Module
 {
     public static class DependencyProvider
     {
         public static Usable<T> Resolve<T>(this IDependencyProvider provider) =>
-            provider.Resolve(typeof (T)).Select(o => (T)o);
+            provider.Resolve(typeof(T)).Select(o => (T)o);
 
         public static readonly IDependencyProvider Empty =
             new Implementation(t => throw new NotImplementedException(t.Name), ImmutableHashSet<Type>.Empty);
@@ -36,7 +36,7 @@ namespace FluentHelium.Module
                 throw new ArgumentException(
                     $"left provider contains same dependecies as right:{string.Join(";", m.Select(t => t.Name))}");
             return new Implementation(
-                t => left.Dependencies.Contains(t) ? left.Resolve(t) : right.Resolve(t), 
+                t => left.Dependencies.Contains(t) ? left.Resolve(t) : right.Resolve(t),
                 left.Dependencies.Union(right.Dependencies));
         }
 
@@ -55,7 +55,7 @@ namespace FluentHelium.Module
         public static string ToString(this IDependencyProvider provider) =>
             $"DependencyProvider({provider.Dependencies.Count}){{{string.Join("; ", provider.Dependencies.Select(t => t.Name))}}}";
 
-        private sealed class Implementation : IDependencyProvider
+        sealed class Implementation : IDependencyProvider
         {
             public Implementation(Func<Type, Usable<object>> resolver, IImmutableSet<Type> dependencies)
             {
@@ -63,16 +63,16 @@ namespace FluentHelium.Module
                 Dependencies = dependencies;
             }
 
-            public Usable<object> Resolve(Type type) 
-                => Dependencies.Contains(type) 
-                ? _resolver(type) 
+            public Usable<object> Resolve(Type type)
+                => Dependencies.Contains(type)
+                ? _resolver(type)
                 : throw new ArgumentException($"Dependency provider don't support type {type.Name}", nameof(type));
 
             public IImmutableSet<Type> Dependencies { get; }
 
             public override string ToString() => DependencyProvider.ToString(this);
 
-            private readonly Func<Type, Usable<object>> _resolver;
+            readonly Func<Type, Usable<object>> _resolver;
         }
     }
 }

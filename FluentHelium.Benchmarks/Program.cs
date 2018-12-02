@@ -26,10 +26,10 @@ namespace FluentHelium.Benchmarks
         [Benchmark]
         public Exception AwaitCanceledResultBencmark() => TestWithResult(TaskExtensions.Canceled<Unit>()).Exception;
 
-        private async Task<Unit> TestTask(Task<Unit> inner) => await inner.ConfigureAwait(false);
+        async Task<Unit> TestTask(Task<Unit> inner) => await inner.ConfigureAwait(false);
 
-        private async Task<Result<Unit>> TestResult(Task<Unit> inner) => await inner.ToResult();
-        private Task<Unit> TestWithResult(Task<Unit> inner) => TestResult(inner).ToResult().ToTask();
+        async Task<Result<Unit>> TestResult(Task<Unit> inner) => await inner.ToResult();
+        Task<Unit> TestWithResult(Task<Unit> inner) => TestResult(inner).ToResult().ToTask();
     }
 
     public static class Program

@@ -1,11 +1,11 @@
+using FluentHelium.Base;
 using System;
 using System.Linq;
 using System.Reflection;
-using FluentHelium.Base;
 
 namespace FluentHelium.Module
 {
-    internal sealed class OptionalDependencyBuilder : IModuleDependencyBuilder
+    sealed class OptionalDependencyBuilder : IModuleDependencyBuilder
     {
         public RefOption<IModuleInputDependency> Build(
             IModuleDescriptor client,
@@ -31,14 +31,14 @@ namespace FluentHelium.Module
                 ToRefSome();
         }
 
-        private Type GetOptionType(Type option)
+        Type GetOptionType(Type option)
         {
             if (option == typeof(Option<>))
                 return typeof(Option);
             return option == typeof(RefOption<>) ? typeof(RefOption) : typeof(Option<,>);
         }
 
-        private object CreateOption(Type option, object o, Type t) =>
+        object CreateOption(Type option, object o, Type t) =>
             GetOptionType(option).
                 GetTypeInfo().
                 GetDeclaredMethods(nameof(Option.From)).
@@ -51,6 +51,6 @@ namespace FluentHelium.Module
                     return !isReference ^ t.GetTypeInfo().IsClass;
                 }).
                 MakeGenericMethod(t).
-                Invoke(null, new[] {o});
+                Invoke(null, new[] { o });
     }
 }

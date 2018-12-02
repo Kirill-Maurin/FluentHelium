@@ -1,6 +1,6 @@
-﻿using System;
+﻿using NullGuard;
+using System;
 using System.Threading.Tasks;
-using NullGuard;
 
 namespace FluentHelium.Base
 {
@@ -13,8 +13,8 @@ namespace FluentHelium.Base
         }
 
         public static Task<T> Canceled<T>() => CanceledTask<T>.Instance;
-        
-        private class CanceledTask<T>
+
+        class CanceledTask<T>
         {
             public static Task<T> Instance { get; } = new TaskCompletionSource<T>().Then(s => s.SetCanceled()).Task;
         }

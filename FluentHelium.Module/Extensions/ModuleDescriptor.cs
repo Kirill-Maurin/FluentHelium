@@ -27,11 +27,11 @@ namespace FluentHelium.Module
 
         public static IModuleDescriptor ToProducerModuleDescriptor(
             this Type input, string name) =>
-            Enumerable.Empty<Type>().ToModuleDescriptor(name, Guid.NewGuid(), new[] { input } .ToImmutableHashSet());
-        
+            Enumerable.Empty<Type>().ToModuleDescriptor(name, Guid.NewGuid(), new[] { input }.ToImmutableHashSet());
+
         public static IModuleDescriptor ToConsumerModuleDescriptor(
             this Type output, string name) =>
-                new [] {output}.ToModuleDescriptor(name, Guid.NewGuid(), ImmutableHashSet<Type>.Empty);
+                new[] { output }.ToModuleDescriptor(name, Guid.NewGuid(), ImmutableHashSet<Type>.Empty);
 
         public static IModuleDescriptor ToProducerModuleDescriptor(
             this Type output, string name, Guid id) =>
@@ -48,9 +48,9 @@ namespace FluentHelium.Module
         public static string ToString(this IModuleDescriptor descriptor) =>
             $"{descriptor.Name}({descriptor.Id}) {descriptor.Input.Count}/{descriptor.Output.Count}" +
             (descriptor.Input.Count == 0 ? string.Empty : $"\n Input {{{string.Join("; ", descriptor.Input.Select(t => t.Name))}}}") +
-            (descriptor.Output.Count == 0? string.Empty : $"\n Output {{{string.Join("; ", descriptor.Output.Select(t => t.Name))}}}");
+            (descriptor.Output.Count == 0 ? string.Empty : $"\n Output {{{string.Join("; ", descriptor.Output.Select(t => t.Name))}}}");
 
-        private sealed class Implementation : IModuleDescriptor
+        sealed class Implementation : IModuleDescriptor
         {
             public Implementation(string name, Guid id, IImmutableSet<Type> input, IImmutableSet<Type> output)
             {

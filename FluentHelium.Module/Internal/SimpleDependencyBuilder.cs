@@ -1,6 +1,6 @@
+using FluentHelium.Base;
 using System;
 using System.Linq;
-using FluentHelium.Base;
 
 namespace FluentHelium.Module
 {
@@ -8,7 +8,7 @@ namespace FluentHelium.Module
     /// <summary>
     /// Simple builder: use the single implementation from available else use fallback
     /// </summary>
-    internal sealed class SimpleDependencyBuilder : IModuleDependencyBuilder
+    sealed class SimpleDependencyBuilder : IModuleDependencyBuilder
     {
         public RefOption<IModuleInputDependency> Build(
             IModuleDescriptor client,

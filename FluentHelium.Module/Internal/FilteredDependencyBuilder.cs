@@ -4,7 +4,7 @@ using FluentHelium.Base;
 
 namespace FluentHelium.Module
 {
-    internal sealed class FilteredDependencyBuilder : IModuleDependencyBuilder
+    sealed class FilteredDependencyBuilder : IModuleDependencyBuilder
     {
         internal FilteredDependencyBuilder(
             IModuleDependencyBuilder main,
@@ -22,8 +22,8 @@ namespace FluentHelium.Module
                 : default;
         }
 
-        private readonly IModuleDependencyBuilder _main;
-        private readonly Func<IModuleDescriptor, Type, ILookup<Type, IModuleDescriptor>, bool> _filter;
-        private readonly Func<ILookup<Type, IModuleDescriptor>, ILookup<Type, IModuleDescriptor>> _implementationFilter;
+        readonly IModuleDependencyBuilder _main;
+        readonly Func<IModuleDescriptor, Type, ILookup<Type, IModuleDescriptor>, bool> _filter;
+        readonly Func<ILookup<Type, IModuleDescriptor>, ILookup<Type, IModuleDescriptor>> _implementationFilter;
     }
 }

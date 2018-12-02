@@ -1,6 +1,6 @@
+using FluentHelium.Base;
 using System;
 using System.Collections.Generic;
-using FluentHelium.Base;
 
 namespace FluentHelium.Module
 {
@@ -20,7 +20,7 @@ namespace FluentHelium.Module
         public Usable<object> Resolve(Func<IModuleDescriptor, IDependencyProvider> provider) =>
             _resolver(provider);
 
-        private readonly Func<Func<IModuleDescriptor, IDependencyProvider>, Usable<object>> _resolver;
+        readonly Func<Func<IModuleDescriptor, IDependencyProvider>, Usable<object>> _resolver;
         public IModuleDescriptor Client { get; }
     }
 }

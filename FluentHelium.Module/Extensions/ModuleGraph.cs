@@ -1,10 +1,10 @@
-﻿using System;
+﻿using FluentHelium.Base;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using FluentHelium.Base;
 using static FluentHelium.Module.DependencyBuilder;
 
 namespace FluentHelium.Module
@@ -25,7 +25,7 @@ namespace FluentHelium.Module
                 writer.WriteLine(line);
         }
 
-        private static string ToPlantUml(IModuleDescriptor client, IModuleDescriptor implementation, Type type) 
+        static string ToPlantUml(IModuleDescriptor client, IModuleDescriptor implementation, Type type)
             => $"[{client.Name}] ..> [{implementation.Name}] : {type.Name}";
 
         public static string ToPlantUml(this IModuleGraph graph)
@@ -41,24 +41,24 @@ namespace FluentHelium.Module
             => graph.ToSuperModule(
                 (t, mds) => mds.SingleOrDefault(),
                 name,
-                Guid.NewGuid(), 
+                Guid.NewGuid(),
                 modules);
-        
+
         public static IModule ToSimpleLazyModule(this IModuleGraph graph, string name, params IModule[] modules)
            => graph.ToLazyModule(
                 (t, mds) => mds.SingleOrDefault(),
                 name,
                 Guid.NewGuid(),
                 modules);
-      
-        public static IModule ToSuperModule(this IModuleGraph graph, string name, params IModule[] modules) 
+
+        public static IModule ToSuperModule(this IModuleGraph graph, string name, params IModule[] modules)
             => graph.ToSuperModule(
                 (t, mds) => mds.SingleOrDefault(),
                 name,
-                Guid.NewGuid(), 
+                Guid.NewGuid(),
                 modules);
-        
-        public static IModule ToLazyModule(this IModuleGraph graph, string name, params IModule[] modules) 
+
+        public static IModule ToLazyModule(this IModuleGraph graph, string name, params IModule[] modules)
             => graph.ToLazyModule(
                 (t, mds) => mds.SingleOrDefault(),
                 name,
@@ -78,7 +78,7 @@ namespace FluentHelium.Module
             this IModuleGraph graph,
             Func<Type, IEnumerable<IModuleDescriptor>, IModuleDescriptor> tryChoiceOutput,
             string name,
-            Guid id ,
+            Guid id,
             params IModule[] modules) =>
             CreateModule(graph, tryChoiceOutput, name, id, CreateSuperModule, modules);
 
@@ -99,11 +99,11 @@ namespace FluentHelium.Module
             params IModule[] modules) =>
             CreateModule(graph, tryChoiceOutput, name, id, CreateLazyModule, modules);
 
-        private static IModule CreateModule(
+        static IModule CreateModule(
             IModuleGraph graph,
-            Func<Type, IEnumerable<IModuleDescriptor>, IModuleDescriptor> tryChoiceOutput, 
-            string name, 
-            Guid id, 
+            Func<Type, IEnumerable<IModuleDescriptor>, IModuleDescriptor> tryChoiceOutput,
+            string name,
+            Guid id,
             Func<IModuleGraph, IReadOnlyDictionary<IModuleDescriptor, IModule>, IModuleDescriptor, IEnumerable<KeyValuePair<Type, IModuleDescriptor>>, IModule> factory,
             params IModule[] modules)
         {
@@ -117,15 +117,15 @@ namespace FluentHelium.Module
             return factory(graph, descriptor2Module, descriptor, output);
         }
 
-        private static IModule CreateSuperModule(
-            IModuleGraph graph, 
+        static IModule CreateSuperModule(
+            IModuleGraph graph,
             IReadOnlyDictionary<IModuleDescriptor, IModule> descriptor2Module, IModuleDescriptor descriptor, IEnumerable<KeyValuePair<Type, IModuleDescriptor>> output)
         {
             var module2Types = output.ToLookup(g => g.Value, g => g.Key);
             return descriptor.ToModule(dependencies => graph.Activate(dependencies, descriptor2Module).Select(p => p.ToDependencyProvider(module2Types)));
         }
 
-        private static IModule CreateLazyModule(
+        static IModule CreateLazyModule(
             IModuleGraph graph,
             IReadOnlyDictionary<IModuleDescriptor, IModule> descriptor2Module, IModuleDescriptor descriptor, IEnumerable<KeyValuePair<Type, IModuleDescriptor>> output)
         {
@@ -148,7 +148,7 @@ namespace FluentHelium.Module
         /// <param name="tryChoiceOutput">Can return module or null for output type</param>
         /// <returns></returns>
         public static IEnumerable<KeyValuePair<Type, IModuleDescriptor>> SelectOutput(
-            this IModuleGraph graph, Func<Type, IEnumerable<IModuleDescriptor>, IModuleDescriptor> tryChoiceOutput) => 
+            this IModuleGraph graph, Func<Type, IEnumerable<IModuleDescriptor>, IModuleDescriptor> tryChoiceOutput) =>
             graph.Output.
                 Select(g => g.Key.LinkValue(tryChoiceOutput(g.Key, g))).
                 Where(p => p.Value != null);
@@ -216,19 +216,19 @@ namespace FluentHelium.Module
                 : CreateModuleGraphWithCycle(inner, inputs, outputs, order);
         }
 
-        private static IModuleGraph CreateSortedModuleGraph(
+        static IModuleGraph CreateSortedModuleGraph(
             IEnumerable<IModuleDescriptor> result,
             IImmutableDictionary<IModuleDescriptor, IModuleDependencies> inner,
             ILookup<Type, IModuleDescriptor> inputs,
             ILookup<Type, IModuleDescriptor> outputs) =>
             new Implementation(inner, inputs, outputs, result.ToImmutableList(), ImmutableList<IModuleDescriptor>.Empty);
 
-        private static IModuleGraph CreateModuleGraphWithCycle(
+        static IModuleGraph CreateModuleGraphWithCycle(
             IImmutableDictionary<IModuleDescriptor, IModuleDependencies> inner,
             ILookup<Type, IModuleDescriptor> inputs, ILookup<Type, IModuleDescriptor> outputs, IEnumerable<IModuleDescriptor> path) =>
             new Implementation(inner, inputs, outputs, ImmutableList<IModuleDescriptor>.Empty, path.ToImmutableList());
 
-        private sealed class Implementation : IModuleGraph
+        sealed class Implementation : IModuleGraph
         {
             public Implementation(
                 IImmutableDictionary<IModuleDescriptor, IModuleDependencies> dependencies,
@@ -257,7 +257,7 @@ namespace FluentHelium.Module
                     : $"ModuleGraph Cycle{{{string.Join("=>", Cycle.Select(d => d.Name))}}}";
         }
 
-        private sealed class ModuleDependencies : IModuleDependencies
+        sealed class ModuleDependencies : IModuleDependencies
         {
             internal ModuleDependencies(IImmutableDictionary<Type, IModuleInputDependency> dependencies, IModuleDescriptor client)
             {
@@ -276,7 +276,7 @@ namespace FluentHelium.Module
             public IEnumerator<IModuleInputDependency> GetEnumerator() => _dependencies.Values.GetEnumerator();
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-            private readonly IImmutableDictionary<Type, IModuleInputDependency> _dependencies;
+            readonly IImmutableDictionary<Type, IModuleInputDependency> _dependencies;
         }
     }
 }

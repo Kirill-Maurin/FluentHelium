@@ -10,7 +10,7 @@ namespace FluentHelium.Base
         public static IProperty<T> Create<T>() => default(T).ToProperty();
     }
 
-    internal sealed class Property<T> : IMutableProperty<T>
+    sealed class Property<T> : IMutableProperty<T>
     {
         public Property(T value = default) => _value = value;
 
@@ -26,7 +26,7 @@ namespace FluentHelium.Base
             }
         }
 
-        private T _value;
+        T _value;
 
         public IDisposable Subscribe(IObserver<T> observer) =>
             (_subject ?? (_subject = new Subject<T>())).StartWith(Value).Subscribe(observer);
@@ -37,7 +37,7 @@ namespace FluentHelium.Base
 
         public void OnNext(T value) => Value = value;
 
-        private ISubject<T> _subject;
+        ISubject<T> _subject;
     }
 
 }

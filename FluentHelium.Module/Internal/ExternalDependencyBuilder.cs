@@ -1,6 +1,6 @@
+using FluentHelium.Base;
 using System;
 using System.Linq;
-using FluentHelium.Base;
 using static FluentHelium.Module.ModuleDependencyExtensions;
 
 namespace FluentHelium.Module
@@ -9,7 +9,7 @@ namespace FluentHelium.Module
     /// <summary>
     /// Trivial builder: use external implementation for any service
     /// </summary>
-    internal sealed class ExternalDependencyBuilder : IModuleDependencyBuilder
+    sealed class ExternalDependencyBuilder : IModuleDependencyBuilder
     {
         public RefOption<IModuleInputDependency> Build(IModuleDescriptor client, Type @interface, ILookup<Type, IModuleDescriptor> implementations) =>
             ExternalModule.ToModuleInputDependency(client, @interface, provider => provider(ExternalModule).Resolve(@interface)).ToRefSome();

@@ -3,7 +3,7 @@ using System.Linq;
 using FluentHelium.Base;
 
 namespace FluentHelium.Module {
-    internal sealed class FallbackDependencyBuilder : IModuleDependencyBuilder
+    sealed class FallbackDependencyBuilder : IModuleDependencyBuilder
     {
         internal FallbackDependencyBuilder(
             IModuleDependencyBuilder builder,
@@ -26,7 +26,7 @@ namespace FluentHelium.Module {
             return result;
         }
 
-        private readonly IModuleDependencyBuilder _builder;
-        private readonly IModuleDependencyBuilder[] _fallback;
+        readonly IModuleDependencyBuilder _builder;
+        readonly IModuleDependencyBuilder[] _fallback;
     }
 }

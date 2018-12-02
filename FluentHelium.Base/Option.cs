@@ -74,14 +74,14 @@ namespace FluentHelium.Base
 
             public void OnCompleted(Action continuation) => _awaiter.OnCompleted(continuation);
 
-            private ConfiguredTaskAwaitable<T>.ConfiguredTaskAwaiter _awaiter;
-            private readonly Task<T> _task;
+            ConfiguredTaskAwaitable<T>.ConfiguredTaskAwaiter _awaiter;
+            readonly Task<T> _task;
         }
     }
 
     public readonly struct Option<T, TO> : IOption<T, TO> where TO : struct, IOption<T, TO>
     {
-        private Option(TO value) => Inner = value;
+        Option(TO value) => Inner = value;
 
         public bool TryGet([AllowNull]out T value) => Inner.TryGet(out value);
 
@@ -102,7 +102,7 @@ namespace FluentHelium.Base
     {
         internal Option(Some<T> value) => _value = value;
 
-        private readonly Some<T>? _value;
+        readonly Some<T>? _value;
 
         public bool TryGet([AllowNull]out T value)
         {

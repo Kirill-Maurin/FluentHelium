@@ -1,21 +1,22 @@
+using FluentHelium.Base;
 using System;
 using System.Linq;
-using FluentHelium.Base;
-using static FluentHelium.Module.ModuleDescriptor;
 using static FluentHelium.Base.EnumerableExtensions;
+using static FluentHelium.Module.ModuleDescriptor;
 
 namespace FluentHelium.Module
 {
     public static class Module
-    { 
-        public static IModule CreateSimpleModule<TInput, TOutput>(string name, Func<TInput, TOutput> activate) => 
+    {
+        public static IModule CreateSimpleModule<TInput, TOutput>(string name, Func<TInput, TOutput> activate) =>
             CreateSimpleDescriptor<TInput, TOutput>(name).ToModule(p => p.Resolve<TInput>().Select(i => activate(i).ToDependencyProvider()));
 
-        public static IModule CreateSimpleModule<T>(string name, Func<T> activate) => 
+        public static IModule CreateSimpleModule<T>(string name, Func<T> activate) =>
             CreateSimpleDescriptor<T>(name).ToModule(p => activate().ToDependencyProvider().ToUsable());
 
         public static IModule CreateSimpleModule<T>(string name, Action<T> activate) =>
-            typeof(T).ToConsumerModuleDescriptor(name).ToModule(p => p.Resolve<T>().SelectMany(i => {
+            typeof(T).ToConsumerModuleDescriptor(name).ToModule(p => p.Resolve<T>().SelectMany(i =>
+            {
                 activate(i);
                 return DependencyProvider.Empty.ToUsable();
             }));
@@ -39,7 +40,7 @@ namespace FluentHelium.Module
                 Concat(descriptor.Input.Select(t => $"[{descriptor.Name}] .d.> {t.Name}")).
                 Concat(descriptor.Output.Select(t => $"[{descriptor.Name}] -u-> {t.Name}")));
 
-        private sealed class Implementation : IModule
+        sealed class Implementation : IModule
         {
             public Implementation(IModuleDescriptor descriptor, Func<IDependencyProvider, Usable<IDependencyProvider>> activator)
             {
@@ -70,8 +71,8 @@ namespace FluentHelium.Module
 
             public override string ToString() => Module.ToString(this);
 
-            private readonly Func<IDependencyProvider, Usable<IDependencyProvider>> _activator;
-            private readonly IMutableProperty<bool> _active;
+            readonly Func<IDependencyProvider, Usable<IDependencyProvider>> _activator;
+            readonly IMutableProperty<bool> _active;
         }
     }
 }

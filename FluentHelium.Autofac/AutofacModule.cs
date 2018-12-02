@@ -1,11 +1,11 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using FluentHelium.Base;
 using FluentHelium.Module;
+using System;
 
 namespace FluentHelium.Autofac
 {
-    internal sealed class AutofacModule : IModule
+    sealed class AutofacModule : IModule
     {
         public AutofacModule(IModuleDescriptor descriptor, Action<ContainerBuilder> registrator)
         {
@@ -42,7 +42,7 @@ namespace FluentHelium.Autofac
 
         public IProperty<bool> Active => _active;
 
-        private readonly Action<ContainerBuilder> _registrator;
-        private readonly IMutableProperty<bool> _active;
+        readonly Action<ContainerBuilder> _registrator;
+        readonly IMutableProperty<bool> _active;
     }
 }

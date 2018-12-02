@@ -48,7 +48,7 @@ namespace FluentHelium.Autofac.Tests
             When(_ => _.Activate(typeof(Input).ToDependencyProvider(t => ((object)new Input()).ToUsable())).Unwrap(p => p.Resolve<object>())).
             Then(_ => _.Do(o => o.Should().BeOfType<Input>()));
 
-        private static ContainerBuilder CreateContainerBuilder(IModule module)
+        static ContainerBuilder CreateContainerBuilder(IModule module)
         {
             var builder = new ContainerBuilder();
             builder.RegisterInstance(new Input());
@@ -56,7 +56,7 @@ namespace FluentHelium.Autofac.Tests
             return builder;
         }
 
-        private static IModule CreateAutofacModule() 
+        static IModule CreateAutofacModule() 
             => typeof(Input).ToModuleDescriptor(
                 "Test Autofac module",
                 Guid.Parse("{047D58A7-1950-4937-B0FA-5B5935E3EF7D}"),
@@ -66,7 +66,7 @@ namespace FluentHelium.Autofac.Tests
                 b.Register(c => (object) c.Resolve<Input>());
             });
 
-        private static T CreateModule<T>(Func<IModule, IDependencyProvider, IDisposable, IDisposable, T> toResult)
+        static T CreateModule<T>(Func<IModule, IDependencyProvider, IDisposable, IDisposable, T> toResult)
         {
             var module = For<IModule>();
             module.Descriptor.Returns(CreateModuleDescriptor());
@@ -82,7 +82,7 @@ namespace FluentHelium.Autofac.Tests
             return toResult(module, provider, moduleDeactivator, dependencyDeactivator);
         }
 
-        private static object RegisterResolveResolveRelease(IModule module)
+        static object RegisterResolveResolveRelease(IModule module)
         {
             object resolved;
             using (var container = CreateContainerBuilder(module).Build())
@@ -93,12 +93,12 @@ namespace FluentHelium.Autofac.Tests
             return resolved;
         }
 
-        private static IModuleDescriptor CreateModuleDescriptor() => typeof (Input).ToModuleDescriptor(
+        static IModuleDescriptor CreateModuleDescriptor() => typeof (Input).ToModuleDescriptor(
             "Test module",
             Guid.Parse("{6C7026AD-BD0E-4DC7-888B-6CA29B07C43F}"),
             typeof (object));
 
-        private sealed class Input
+        sealed class Input
         {
         }
     }

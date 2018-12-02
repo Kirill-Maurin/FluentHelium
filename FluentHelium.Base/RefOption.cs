@@ -15,9 +15,9 @@ namespace FluentHelium.Base
     {
         public static RefOption<T> From([AllowNull]T value) => new RefOption<T>(value);
 
-        private RefOption(T value) => _value = value;
+        RefOption(T value) => _value = value;
 
-        private readonly T _value;
+        readonly T _value;
 
         public T GetValue( T fallback ) => _value ?? fallback;
 

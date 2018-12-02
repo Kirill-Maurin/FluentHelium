@@ -1,6 +1,6 @@
-using System;
 using FluentHelium.Base;
 using NullGuard;
+using System;
 
 namespace FluentHelium.Bdd
 {
@@ -10,7 +10,7 @@ namespace FluentHelium.Bdd
 
         public static GivenResult<T, T> Given<T>(Func<T> result) => Given(result());
 
-        public static GivenResult<TResult, TMock> And<T, TMock, TResult>(this GivenResult<T, TMock> givenResult, Func<T, TMock, TResult> and) => 
+        public static GivenResult<TResult, TMock> And<T, TMock, TResult>(this GivenResult<T, TMock> givenResult, Func<T, TMock, TResult> and) =>
             new GivenResult<TResult, TMock>(and(givenResult.Result, givenResult.Mock), givenResult.Mock);
 
         public static WhenResult<TResult, TMock> When<T, TMock, TResult>(this GivenResult<T, TMock> givenResult, Func<T, TResult> when) =>
@@ -22,21 +22,21 @@ namespace FluentHelium.Bdd
         public static WhenResult<TResult, TMock> And<T, TMock, TResult>(this WhenResult<T, TMock> whenResult, Func<T, TMock, TResult> and) =>
             new WhenResult<TResult, TMock>(whenResult.Result.Try(r => and(r, whenResult.Mock)), whenResult.Mock);
 
-        public static WhenResult<T, TMock> When<T, TMock>(this GivenResult<T, TMock> givenResult, Action<T> when) 
-            => givenResult.When(o => 
+        public static WhenResult<T, TMock> When<T, TMock>(this GivenResult<T, TMock> givenResult, Action<T> when)
+            => givenResult.When(o =>
             {
                 when(o);
                 return o;
             });
 
-        public static WhenResult<T, TMock> When<T, TMock>(this GivenResult<T, TMock> givenResult, Action<T, TMock> when) 
+        public static WhenResult<T, TMock> When<T, TMock>(this GivenResult<T, TMock> givenResult, Action<T, TMock> when)
             => givenResult.When(o =>
             {
                 when(o, givenResult.Mock);
                 return o;
             });
 
-        public static WhenResult<T, TMock> And<T, TMock>(this WhenResult<T, TMock> whenResult, Action<T, TMock> and) 
+        public static WhenResult<T, TMock> And<T, TMock>(this WhenResult<T, TMock> whenResult, Action<T, TMock> and)
             => new WhenResult<T, TMock>(whenResult.Result.Try(r => and(r, whenResult.Mock)), whenResult.Mock);
 
         public static GivenResult<T, TMock> And<T, TMock>(this GivenResult<T, TMock> givenResult, Action<T> and)
@@ -45,29 +45,29 @@ namespace FluentHelium.Bdd
             return givenResult;
         }
 
-        public static GivenResult<T, TMock> And<T, TMock>(this GivenResult<TMock, object> givenResult, Func<TMock, T> and) => 
+        public static GivenResult<T, TMock> And<T, TMock>(this GivenResult<TMock, object> givenResult, Func<TMock, T> and) =>
             new GivenResult<T, TMock>(and(givenResult.Result), givenResult.Result);
 
-        public static GivenResult<TResult, TMock> And<T, TMock, TResult>(this GivenResult<T, TMock> givenResult, Func<T, TResult> and) => 
+        public static GivenResult<TResult, TMock> And<T, TMock, TResult>(this GivenResult<T, TMock> givenResult, Func<T, TResult> and) =>
             givenResult.And((o, m) => and(o));
 
-        public static WhenResult<TResult, TMock> And<T, TMock, TResult>(this WhenResult<T, TMock> whenResult, Func<T, TResult> and) => 
+        public static WhenResult<TResult, TMock> And<T, TMock, TResult>(this WhenResult<T, TMock> whenResult, Func<T, TResult> and) =>
             whenResult.And((o, m) => and(o));
 
         public static WhenResult<T, TMock> And<T, TMock>(this WhenResult<T, TMock> whenResult, Action<T> and) =>
             whenResult.And((o, m) => and(o));
-        
+
 
         public static ThenResult<T, TMock> Then<T, TMock>(this WhenResult<T, TMock> whenResult, Action<T> then) =>
             whenResult.Then((r, m) => then(r));
 
-        private static Exception CreateThenException(Exception e) => 
+        static Exception CreateThenException(Exception e) =>
             new InvalidOperationException($"Test has thrown an exception {e.GetType().Name}:{e.Message}", e);
 
-        private static InvalidOperationException CreateThenSuccessException() => 
+        static InvalidOperationException CreateThenSuccessException() =>
             new InvalidOperationException("Test has thrown no exception");
 
-        public static void ThenCatch<T, TMock>(this WhenResult<T, TMock> whenResult, Action<Exception> then) 
+        public static void ThenCatch<T, TMock>(this WhenResult<T, TMock> whenResult, Action<Exception> then)
             => then(whenResult.Result.UnwrapFail(CreateThenSuccessException));
 
         public static ThenResult<T, TMock> Then<T, TMock>(this WhenResult<T, TMock> whenResult, Action<T, TMock> then)
@@ -77,7 +77,7 @@ namespace FluentHelium.Bdd
             return new ThenResult<T, TMock>(result, whenResult.Mock);
         }
 
-        public static ThenResult<T, TMock> ThenMock<T, TMock>(this WhenResult<T, TMock> whenResult, Action<TMock> then) 
+        public static ThenResult<T, TMock> ThenMock<T, TMock>(this WhenResult<T, TMock> whenResult, Action<TMock> then)
             => whenResult.Then((r, m) => then(m));
 
         public static ThenResult<T, TMock> And<T, TMock>(this ThenResult<T, TMock> thenResult, Action<T> and) =>
